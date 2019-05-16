@@ -1,9 +1,14 @@
 ---
 resource_types:
-  - name: gcs-resource
-    type: docker-image
-    source:
-      repository: frodenas/gcs-resource
+- name: gcs-resource
+  type: docker-image
+  source:
+    repository: frodenas/gcs-resource
+- name: terraform
+  type: docker-image
+  source:
+    repository: ljfranklin/terraform-resource
+    tag: 0.11.13
 
 resources:
 - name: tfstate
@@ -17,6 +22,20 @@ resources:
   source:
     uri: https://github.com/EngineerBetter/concourse-gcp-tf-bootstrap.git
     branch: master
+- name: scf-tutorial
+  type: git
+  source:
+    uri: https://github.com/EngineerBetter/scf-tutorial.git
+    branch: master
+- name: gke-tf
+  type: terraform
+  source:
+    backend_type: gcs
+    backend_config:
+      bucket: ((project_id))
+      prefix: gke
+      region: ((bucket_location))
+      credentials: ((gcp_credentials_json))
 
 jobs:
 - name: setup-project
@@ -57,3 +76,12 @@ jobs:
       ORGANIZATION_ID: ((organization_id))
       PROJECT_ID: ((project_id))
       PROJECT_NAME: ((project_name))
+
+- name: deploy-gke
+  plan:
+  - get: scf-tutorial
+    trigger: true
+  - put: gke-tf
+    params:
+      terraform_source: scf-tutorial/ci/tf/gke
+      env_name: default
