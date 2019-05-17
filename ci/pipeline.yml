@@ -67,7 +67,9 @@ resources:
   type: helm
   source:
     helm_init_server: true
-    helm_service_account: tiller
+    helm_init_wait: true
+    helm_service_account: helm
+    tracing_enabled: true
 - name: scf-release
   type: github-release
   source:
@@ -131,10 +133,10 @@ jobs:
 
 - name: deploy-scf
   plan:
+  - get: scf-tutorial
+    passed: [deploy-gke]
   - get: gke-tf
     trigger: true
-    passed: [deploy-gke]
-  - get: scf-tutorial
     passed: [deploy-gke]
   - task: extract-kubeconfig
     file: scf-tutorial/ci/tasks/tf-metadata-to-file.yml
@@ -181,9 +183,9 @@ jobs:
         args:
         - -exc
         - |
-         unzip scf-release/scf*.zip -d scf-release-unzipped
+          unzip scf-release/scf*.zip -d scf-release-unzipped
   - put: helm
     params:
       chart: scf-release-unzipped/helm/uaa/
-      version: 1.6.3
+      release: uaa
       kubeconfig_path: tf-metadata-to-file/kube.config
