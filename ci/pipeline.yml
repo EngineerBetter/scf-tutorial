@@ -166,7 +166,7 @@ jobs:
       kubectl: apply -f scf-tutorial/k8s/tiller-service-account.yaml
       kubeconfig_file: tf-metadata-to-file/kube.config
   - get: scf-release
-  - task: test-kubeconfig
+  - task: unzip-scf-release
     config:
       image_resource:
         type: docker-image
