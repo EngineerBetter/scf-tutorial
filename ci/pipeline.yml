@@ -188,4 +188,5 @@ jobs:
     params:
       chart: scf-release-unzipped/helm/uaa/
       release: uaa
+      namespace: uaa
       kubeconfig_path: tf-metadata-to-file/kube.config
