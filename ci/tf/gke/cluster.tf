@@ -56,5 +56,6 @@ resource "local_file" "kubeconfig" {
 }
 
 output "kubeconfig_content" {
-  value = "${local_file.kubeconfig.content}"
+  value     = "${local_file.kubeconfig.content}"
+  sensitive = true
 }
