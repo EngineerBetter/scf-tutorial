@@ -1,4 +1,5 @@
-bucket_location: eu
 folder_name: spikes
-project_id: scf-tutorial-wip-1
-project_name: scf-tutorial-wip-1
+project_id: scf-tutorial-wip-2
+project_name: scf-tutorial-wip-2
+region: europe-west2
+zone: europe-west2-a

@@ -34,8 +34,13 @@ resources:
     backend_config:
       bucket: ((project_id))
       prefix: gke
-      region: ((bucket_location))
+      region: ((region))
       credentials: ((gcp_credentials_json))
+    env:
+      GOOGLE_CLOUD_KEYFILE_JSON: ((gcp_credentials_json))
+      GOOGLE_PROJECT: ((project_id))
+      GOOGLE_REGION: ((region))
+      GOOGLE_ZONE: ((zone))
 
 jobs:
 - name: setup-project
@@ -48,7 +53,7 @@ jobs:
       gcp-bootstrap: concourse-gcp-tf-bootstrap
     params:
       BILLING_ACCOUNT_ID: ((billing_account_id))
-      BUCKET_LOCATION: ((bucket_location))
+      BUCKET_LOCATION: ((region))
       FOLDER_NAME: ((folder_name))
       GCP_CREDENTIALS_JSON: ((gcp_credentials_json))
       ORGANIZATION_ID: ((organization_id))
@@ -70,7 +75,7 @@ jobs:
       gcp-bootstrap: concourse-gcp-tf-bootstrap
     params:
       BILLING_ACCOUNT_ID: ((billing_account_id))
-      BUCKET_LOCATION: ((bucket_location))
+      BUCKET_LOCATION: ((region))
       FOLDER_NAME: ((folder_name))
       GCP_CREDENTIALS_JSON: ((gcp_credentials_json))
       ORGANIZATION_ID: ((organization_id))
