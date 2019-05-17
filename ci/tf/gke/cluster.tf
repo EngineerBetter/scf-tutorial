@@ -6,7 +6,17 @@ resource "random_id" "password" {
   byte_length = 16
 }
 
+resource "google_project_service" "container" {
+  service = "container.googleapis.com"
+
+  disable_dependent_services = true
+}
+
 resource "google_container_cluster" "scf-cluster" {
+  depends_on = [
+    "google_project_service.container",
+  ]
+
   name               = "scf-cluster"
   initial_node_count = 1
 
