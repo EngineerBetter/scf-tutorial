@@ -29,11 +29,6 @@ resource "google_container_cluster" "scf-cluster" {
     username = "${random_id.username.hex}"
     password = "${random_id.password.hex}"
   }
-
-  node_config {
-    image_type   = "UBUNTU"
-    machine_type = "n1-highcpu-16"
-  }
 }
 
 data "template_file" "kubeconfig" {
