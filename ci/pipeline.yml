@@ -15,6 +15,11 @@ resource_types:
     username: ((dockerhub_user))
     password: ((dockerhub_password))
     repository: engineerbetter/concourse-helm-resource
+- name: kubernetes
+  type: docker-image
+  source:
+    repository: zlabjp/kubernetes-resource
+    tag: "1.14"
 
 resources:
 - name: tfstate
@@ -68,6 +73,8 @@ resources:
   source:
     owner: SUSE
     repository: scf
+- name: kubernetes
+  type: kubernetes
 
 jobs:
 - name: setup-project
@@ -152,6 +159,10 @@ jobs:
         - -exc
         - |
           kubectl cluster-info --kubeconfig tf-metadata-to-file/kube.config
+  - put: kubernetes
+    params:
+      kubectl: apply -f scf-tutorial/k8s/tiller-service-account.yaml
+      kubeconfig_file: tf-metadata-to-file/kube.config
   - get: scf-release
   - task: test-kubeconfig
     config:
