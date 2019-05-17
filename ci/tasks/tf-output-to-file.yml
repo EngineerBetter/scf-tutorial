@@ -9,6 +9,7 @@ image_resource:
 
 inputs:
 - name: terraform
+- name: scf-tutorial
 
 outputs:
 - name: tf-output-to-file
