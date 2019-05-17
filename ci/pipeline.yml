@@ -68,7 +68,7 @@ resources:
   source:
     helm_init_server: true
     helm_init_wait: true
-    helm_service_account: helm
+    tiller_service_account: helm
     tracing_enabled: true
 - name: scf-release
   type: github-release
