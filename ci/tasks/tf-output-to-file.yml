@@ -1,0 +1,21 @@
+---
+platform: linux
+
+image_resource:
+  type: docker-image
+  source:
+    repository: engineerbetter/pcf-ops
+    tag: latest
+
+inputs:
+- name: terraform
+
+outputs:
+- name: tf-output-to-file
+
+run:
+  path: scf-tutorial/tasks/tf-output-to-file.sh
+
+params:
+  METADATA_KEY:
+  OUTPUT_FILE:

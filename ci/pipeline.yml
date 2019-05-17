@@ -86,3 +86,15 @@ jobs:
     params:
       terraform_source: scf-tutorial/ci/tf/gke
       env_name: default
+
+- name: extract-kubeconfig
+  plan:
+  - get: gke-tf
+    trigger: true
+    passed: [deploy-gke]
+  - get: scf-tutorial
+    passed: [deploy-gke]
+  - task: extract-kubeconfig
+    file: scf-tutorial/tasks/tf-output-to-file.yml
+    input_mapping:
+      terraform: gke-tf
