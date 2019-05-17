@@ -79,6 +79,9 @@ jobs:
 
 - name: deploy-gke
   plan:
+  - get: concourse-gcp-tf-bootstrap
+    passed: [setup-project]
+    trigger: true
   - get: scf-tutorial
     trigger: true
   - put: gke-tf
