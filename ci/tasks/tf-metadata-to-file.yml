@@ -12,10 +12,10 @@ inputs:
 - name: scf-tutorial
 
 outputs:
-- name: tf-output-to-file
+- name: tf-metadata-to-file
 
 run:
-  path: scf-tutorial/ci/tasks/tf-output-to-file.sh
+  path: scf-tutorial/ci/tasks/tf-metadata-to-file.sh
 
 params:
   METADATA_KEY:

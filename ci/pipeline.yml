@@ -95,7 +95,7 @@ jobs:
   - get: scf-tutorial
     passed: [deploy-gke]
   - task: extract-kubeconfig
-    file: scf-tutorial/ci/tasks/tf-output-to-file.yml
+    file: scf-tutorial/ci/tasks/tf-metadata-to-file.yml
     input_mapping:
       terraform: gke-tf
     params:
@@ -109,14 +109,11 @@ jobs:
           repository: engineerbetter/pcf-ops
           tag: latest
       inputs:
-      - name: tf-output-to-file
+      - name: tf-metadata-to-file
       platform: linux
       run:
         path: bash
         args:
         - -exc
         - |
-          ls -la
-          ls -la tf-output-to-file/
-          cat tf-output-to-file/kube.config
-          kubectl cluster-info --kubeconfig tf-output-to-file/kube.config
+          kubectl cluster-info --kubeconfig tf-metadata-to-file/kube.config
