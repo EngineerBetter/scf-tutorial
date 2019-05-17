@@ -14,7 +14,7 @@ outputs:
 - name: tf-output-to-file
 
 run:
-  path: scf-tutorial/tasks/tf-output-to-file.sh
+  path: scf-tutorial/ci/tasks/tf-output-to-file.sh
 
 params:
   METADATA_KEY:

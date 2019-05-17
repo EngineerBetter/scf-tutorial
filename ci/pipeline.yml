@@ -95,6 +95,6 @@ jobs:
   - get: scf-tutorial
     passed: [deploy-gke]
   - task: extract-kubeconfig
-    file: scf-tutorial/tasks/tf-output-to-file.yml
+    file: scf-tutorial/ci/tasks/tf-output-to-file.yml
     input_mapping:
       terraform: gke-tf
