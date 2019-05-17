@@ -58,6 +58,16 @@ resources:
     repository: engineerbetter/concourse-helm-resource
     username: ((dockerhub_user))
     password: ((dockerhub_password))
+- name: helm
+  type: helm
+  source:
+    helm_init_server: true
+    helm_service_account: tiller
+- name: scf-release
+  type: github-release
+  source:
+    owner: SUSE
+    repository: scf
 
 jobs:
 - name: setup-project
@@ -112,7 +122,7 @@ jobs:
       terraform_source: scf-tutorial/ci/tf/gke
       env_name: default
 
-- name: extract-kubeconfig
+- name: deploy-scf
   plan:
   - get: gke-tf
     trigger: true
@@ -142,3 +152,27 @@ jobs:
         - -exc
         - |
           kubectl cluster-info --kubeconfig tf-metadata-to-file/kube.config
+  - get: scf-release
+  - task: test-kubeconfig
+    config:
+      image_resource:
+        type: docker-image
+        source:
+          repository: engineerbetter/pcf-ops
+          tag: latest
+      inputs:
+      - name: scf-release
+      outputs:
+      - name: scf-release-unzipped
+      platform: linux
+      run:
+        path: bash
+        args:
+        - -exc
+        - |
+         unzip scf-release/scf*.zip -d scf-release-unzipped
+  - put: helm
+    params:
+      chart: scf-release-unzipped/helm/uaa/
+      version: 1.6.3
+      kubeconfig_path: tf-metadata-to-file/kube.config
