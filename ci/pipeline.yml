@@ -9,6 +9,12 @@ resource_types:
   source:
     repository: ljfranklin/terraform-resource
     tag: 0.11.13
+- name: helm
+  type: docker-image
+  source:
+    username: ((dockerhub_user))
+    password: ((dockerhub_password))
+    repository: engineerbetter/concourse-helm-resource
 
 resources:
 - name: tfstate
@@ -41,6 +47,17 @@ resources:
       GOOGLE_PROJECT: ((project_id))
       GOOGLE_REGION: ((region))
       GOOGLE_ZONE: ((zone))
+- name: concourse-helm-resource
+  type: git
+  source:
+    uri: https://github.com/linkyard/concourse-helm-resource.git
+    branch: master
+- name: concourse-helm-resource-image
+  type: docker-image
+  source:
+    repository: engineerbetter/concourse-helm-resource
+    username: ((dockerhub_user))
+    password: ((dockerhub_password))
 
 jobs:
 - name: setup-project
@@ -74,6 +91,14 @@ jobs:
     input_mapping:
       gcp-bootstrap: concourse-gcp-tf-bootstrap
     params: *project-ops-params
+
+- name: build-concourse-helm-resource-image
+  plan:
+  - get: concourse-helm-resource
+    trigger: true
+  - put: concourse-helm-resource-image
+    params:
+      build: concourse-helm-resource
 
 - name: deploy-gke
   plan:
