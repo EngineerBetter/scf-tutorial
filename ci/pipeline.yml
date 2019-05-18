@@ -28,6 +28,12 @@ resources:
     bucket: ((project_id))
     json_key: ((gcp_credentials_json))
     versioned_file: ci/terraform.tfstate
+- name: kubeconfig
+  type: gcs-resource
+  source:
+    bucket: ((project_id))
+    json_key: ((gcp_credentials_json))
+    versioned_file: ci/kube.config
 - name: concourse-gcp-tf-bootstrap
   type: git
   source:
@@ -130,7 +136,7 @@ jobs:
       terraform_source: scf-tutorial/ci/tf/gke
       env_name: default
 
-- name: deploy-scf
+- name: extract-kubeconfig
   plan:
   - get: scf-tutorial
     passed: [deploy-gke]
@@ -160,10 +166,22 @@ jobs:
         - -exc
         - |
           kubectl cluster-info --kubeconfig tf-metadata-to-file/kube.config
+  - put: kubeconfig
+    params:
+      file: tf-metadata-to-file/kube.config
+
+
+- name: deploy-scf
+  plan:
+  - get: scf-tutorial
+    passed: [extract-kubeconfig]
+  - get: kubeconfig
+    passed: [extract-kubeconfig]
+    trigger: true
   - put: kubernetes
     params:
       kubectl: apply -f scf-tutorial/k8s/tiller-service-account.yaml
-      kubeconfig_file: tf-metadata-to-file/kube.config
+      kubeconfig_file: kubeconfig/kube.config
   - get: scf-release
   - task: unzip-scf-release
     config:
@@ -189,4 +207,4 @@ jobs:
       release: uaa
       namespace: uaa
       values: scf-tutorial/scf/scf-config-values.yaml
-      kubeconfig_path: tf-metadata-to-file/kube.config
+      kubeconfig_path: kubeconfig/kube.config
