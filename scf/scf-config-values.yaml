@@ -1,0 +1,30 @@
+env:
+    # Domain for SCF. DNS for *.DOMAIN must point to a kube node's (not master)
+    # external ip address.
+    DOMAIN: cf-dev.io
+
+    # UAA host/port that SCF will talk to. If you have a custom UAA
+    # provide its host and port here. If you are using the UAA that comes
+    # with the SCF distribution, simply use the two values below and
+    # substitute the cf-dev.io for your DOMAIN used above.
+    # UAA_HOST: uaa.cf-dev.io
+    # UAA_PORT: 2793
+
+kube:
+    # The IP address assigned to the kube node pointed to by the domain.
+    #### the external_ip setting changed to accept a list of IPs, and was
+    #### renamed to external_ips
+    external_ips:
+    - 192.168.77.77
+    storage_class:
+        # Make sure to change the value in here to whatever storage class you use
+        persistent: "persistent"
+        shared: "shared"
+    auth: rbac
+
+secrets:
+    # Password for user 'admin' in the cluster
+    CLUSTER_ADMIN_PASSWORD: changeme
+
+    # Password for SCF to authenticate with UAA
+    UAA_ADMIN_CLIENT_SECRET: uaa-admin-client-secret
