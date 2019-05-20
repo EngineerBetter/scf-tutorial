@@ -28,6 +28,10 @@ resource "google_container_cluster" "scf-cluster" {
   master_auth {
     username = "${random_id.username.hex}"
     password = "${random_id.password.hex}"
+
+    client_certificate_config {
+      issue_client_certificate = false
+    }
   }
 }
 
