@@ -120,6 +120,7 @@ jobs:
   plan:
   - get: scf-tutorial
     passed: [deploy-gke]
+    trigger: true
   - get: gke-tf
     trigger: true
     passed: [deploy-gke]
