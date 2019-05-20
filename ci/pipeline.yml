@@ -155,6 +155,7 @@ jobs:
   plan:
   - get: scf-tutorial
     passed: [extract-kubeconfig]
+    trigger: true
   - get: kubeconfig
     passed: [extract-kubeconfig]
     trigger: true
