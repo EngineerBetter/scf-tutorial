@@ -189,4 +189,7 @@ jobs:
       release: uaa
       namespace: uaa
       values: scf-tutorial/scf/scf-config-values.yaml
+      override_values:
+      - key: kube.storage_class.persistent
+        value: standard
       kubeconfig_path: kubeconfig/kube.config
