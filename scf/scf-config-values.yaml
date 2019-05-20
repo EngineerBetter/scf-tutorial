@@ -18,7 +18,7 @@ kube:
     - 192.168.77.77
     storage_class:
         # Make sure to change the value in here to whatever storage class you use
-        persistent: "persistent"
+        persistent: "standard"
         shared: "shared"
     auth: rbac
 
