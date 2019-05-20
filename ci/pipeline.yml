@@ -37,7 +37,7 @@ resources:
   type: git
   source:
     uri: https://github.com/EngineerBetter/concourse-gcp-tf-bootstrap.git
-    branch: master
+    branch: v1.0.0
 - name: scf-tutorial
   type: git
   source:
