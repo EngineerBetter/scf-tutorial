@@ -12,14 +12,13 @@ resource_types:
 - name: helm
   type: docker-image
   source:
-    username: ((dockerhub_user))
-    password: ((dockerhub_password))
-    repository: engineerbetter/concourse-helm-resource
+    repository: linkyard/concourse-helm-resource
+    tag: 2.14.0
 - name: kubernetes
   type: docker-image
   source:
     repository: zlabjp/kubernetes-resource
-    tag: "1.14"
+    tag: 1.14
 
 resources:
 - name: tfstate
@@ -58,17 +57,6 @@ resources:
       GOOGLE_PROJECT: ((project_id))
       GOOGLE_REGION: ((region))
       GOOGLE_ZONE: ((zone))
-- name: concourse-helm-resource
-  type: git
-  source:
-    uri: https://github.com/linkyard/concourse-helm-resource.git
-    branch: master
-- name: concourse-helm-resource-image
-  type: docker-image
-  source:
-    repository: engineerbetter/concourse-helm-resource
-    username: ((dockerhub_user))
-    password: ((dockerhub_password))
 - name: helm
   type: helm
   source:
@@ -117,14 +105,6 @@ jobs:
     input_mapping:
       gcp-bootstrap: concourse-gcp-tf-bootstrap
     params: *project-ops-params
-
-- name: build-concourse-helm-resource-image
-  plan:
-  - get: concourse-helm-resource
-    trigger: true
-  - put: concourse-helm-resource-image
-    params:
-      build: concourse-helm-resource
 
 - name: deploy-gke
   plan:
