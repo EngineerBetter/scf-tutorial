@@ -1,0 +1,277 @@
+---
+# The cc-clock instance group contains the following jobs:
+#
+# - global-properties: Dummy BOSH job used to host global parameters that are
+#   required to configure SCF
+#
+# - authorize-internal-ca: Install both internal and UAA CA certificates
+#
+# - wait-for-api: Wait for API to be ready before starting any jobs
+#
+# - cloud_controller_clock: The Cloud Controller Clock runs the Diego Sync job
+#   to keep the actual state of running processes in Diego in sync with Cloud
+#   Controller's desired state. Additionally, the Clock schedules periodic clean
+#   up jobs to prune app usage events, audit events, failed jobs, and more.
+#
+# Also: statsd_injector and bpm
+apiVersion: "apps/v1beta1"
+kind: "StatefulSet"
+metadata:
+  name: "cc-clock"
+  labels:
+    app.kubernetes.io/component: "cc-clock"
+spec:
+  podManagementPolicy: "Parallel"
+  replicas: 1
+  selector:
+    matchLabels:
+      skiff-role-name: "cc-clock"
+  serviceName: "cc-clock-set"
+  template:
+    metadata:
+      annotations: {}
+      labels:
+        app.kubernetes.io/component: "cc-clock"
+      name: "cc-clock"
+    spec:
+      containers:
+      - env:
+        - name: "ALLOW_APP_SSH_ACCESS"
+          value: "true"
+        - name: "AZ_LABEL_NAME"
+          value: ""
+        - name: "BITS_ADMIN_USERS_PASSWORD"
+          valueFrom:
+            secretKeyRef:
+              key: "bits-admin-users-password"
+              name: "secrets"
+        - name: "BLOBSTORE_PASSWORD"
+          valueFrom:
+            secretKeyRef:
+              key: "blobstore-password"
+              name: "secrets"
+        - name: "CATS_SUITES"
+          value: ""
+        - name: "CC_DB_CURRENT_KEY_LABEL"
+          value: ""
+        - name: "CC_DB_ENCRYPTION_KEYS"
+          valueFrom:
+            secretKeyRef:
+              key: "cc-db-encryption-keys"
+              name: "secrets"
+        - name: "CC_SERVER_CRT"
+          valueFrom:
+            secretKeyRef:
+              key: "cc-server-crt"
+              name: "secrets"
+        - name: "CC_SERVER_CRT_KEY"
+          valueFrom:
+            secretKeyRef:
+              key: "cc-server-crt-key"
+              name: "secrets"
+        - name: "CDN_URI"
+          value: ""
+        - name: "DB_ENCRYPTION_KEY"
+          valueFrom:
+            secretKeyRef:
+              key: "db-encryption-key"
+              name: "secrets"
+        - name: "DEFAULT_APP_DISK_IN_MB"
+          value: "1024"
+        - name: "DEFAULT_APP_MEMORY"
+          value: "1024"
+        - name: "DEFAULT_APP_SSH_ACCESS"
+          value: "true"
+        - name: "DEFAULT_STACK"
+          value: "sle15"
+        - name: "DOMAIN"
+          value: ""
+        - name: "FEATURE_EIRINI_ENABLED"
+          value: "false"
+        - name: "GARDEN_ROOTFS_DRIVER"
+          value: "btrfs"
+        - name: "INTERNAL_API_PASSWORD"
+          valueFrom:
+            secretKeyRef:
+              key: "internal-api-password"
+              name: "secrets"
+        - name: "INTERNAL_CA_CERT"
+          valueFrom:
+            secretKeyRef:
+              key: "internal-ca-cert"
+              name: "secrets"
+        - name: "KUBERNETES_CLUSTER_DOMAIN"
+          value: ""
+        - name: "KUBERNETES_NAMESPACE"
+          valueFrom:
+            fieldRef:
+              fieldPath: "metadata.namespace"
+        - name: "LOG_LEVEL"
+          value: "info"
+        - name: "MAX_APP_DISK_IN_MB"
+          value: "2048"
+        - name: "MONIT_PASSWORD"
+          valueFrom:
+            secretKeyRef:
+              key: "monit-password"
+              name: "secrets"
+        - name: "MYSQL_CCDB_ROLE_PASSWORD"
+          valueFrom:
+            secretKeyRef:
+              key: "mysql-ccdb-role-password"
+              name: "secrets"
+        - name: "PZ_LABEL_NAME"
+          value: ""
+        - name: "SCF_LOG_HOST"
+          value: ""
+        - name: "SCF_LOG_PORT"
+          value: "514"
+        - name: "SCF_LOG_PROTOCOL"
+          value: "tcp"
+        - name: "STAGING_TIMEOUT"
+          value: "900"
+        - name: "STAGING_UPLOAD_PASSWORD"
+          valueFrom:
+            secretKeyRef:
+              key: "staging-upload-password"
+              name: "secrets"
+        - name: "UAA_CA_CERT"
+          valueFrom:
+            secretKeyRef:
+              key: "uaa-ca-cert"
+              name: "secrets"
+        - name: "UAA_CLIENTS_CC_ROUTING_SECRET"
+          valueFrom:
+            secretKeyRef:
+              key: "uaa-clients-cc-routing-secret"
+              name: "secrets"
+        - name: "UAA_CLIENTS_CC_SERVICE_DASHBOARDS_CLIENT_SECRET"
+          valueFrom:
+            secretKeyRef:
+              key: "uaa-clients-cc-service-dashboards-client-secret"
+              name: "secrets"
+        - name: "UAA_HOST"
+          value: ""
+        - name: "UAA_PORT"
+          value: "2793"
+        - name: "USE_DIEGO_PRIVILEGED_CONTAINERS"
+          value: "false"
+        - name: "USE_STAGER_PRIVILEGED_CONTAINERS"
+          value: "false"
+        - name: "VCAP_HARD_NPROC"
+          value: "2048"
+        - name: "VCAP_SOFT_NPROC"
+          value: "1024"
+        image: "registry.suse.com/cap/scf-cc-clock:c5c1250c16b1cbea87e36d6b868f445b067f9496"
+        lifecycle:
+          preStop:
+            exec:
+              command:
+              - "/opt/fissile/pre-stop.sh"
+        livenessProbe: ~
+        name: "cc-clock"
+        ports: ~
+        readinessProbe:
+          exec:
+            command:
+            - "/opt/fissile/readiness-probe.sh"
+        resources:
+          requests:
+            memory: "750Mi"
+            cpu: "2000m"
+          limits: {}
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: "/opt/fissile/config"
+          name: "deployment-manifest"
+          readOnly: true
+      - env:
+        - name: "AZ_LABEL_NAME"
+          value: ""
+        - name: "CATS_SUITES"
+          value: ""
+        - name: "GARDEN_ROOTFS_DRIVER"
+          value: "btrfs"
+        - name: "INTERNAL_CA_CERT"
+          valueFrom:
+            secretKeyRef:
+              key: "internal-ca-cert"
+              name: "secrets"
+        - name: "KUBERNETES_CLUSTER_DOMAIN"
+          value: ""
+        - name: "KUBERNETES_NAMESPACE"
+          valueFrom:
+            fieldRef:
+              fieldPath: "metadata.namespace"
+        - name: "KUBE_AZ"
+          value: "z1"
+        - name: "LOGGREGATOR_AGENT_CERT"
+          valueFrom:
+            secretKeyRef:
+              key: "loggregator-agent-cert"
+              name: "secrets"
+        - name: "LOGGREGATOR_AGENT_CERT_KEY"
+          valueFrom:
+            secretKeyRef:
+              key: "loggregator-agent-cert-key"
+              name: "secrets"
+        - name: "LOGGREGATOR_FORWARD_CERT"
+          valueFrom:
+            secretKeyRef:
+              key: "loggregator-forward-cert"
+              name: "secrets"
+        - name: "LOGGREGATOR_FORWARD_CERT_KEY"
+          valueFrom:
+            secretKeyRef:
+              key: "loggregator-forward-cert-key"
+              name: "secrets"
+        - name: "MONIT_PASSWORD"
+          valueFrom:
+            secretKeyRef:
+              key: "monit-password"
+              name: "secrets"
+        - name: "PZ_LABEL_NAME"
+          value: ""
+        - name: "SCF_LOG_HOST"
+          value: ""
+        - name: "SCF_LOG_PORT"
+          value: "514"
+        - name: "SCF_LOG_PROTOCOL"
+          value: "tcp"
+        - name: "VCAP_HARD_NPROC"
+          value: "2048"
+        - name: "VCAP_SOFT_NPROC"
+          value: "1024"
+        image: "registry.suse.com/cap/scf-loggregator-agent:39c7e06aaa613d8d7ae5ac05dc952c5d1cf1be17"
+        lifecycle:
+          preStop:
+            exec:
+              command:
+              - "/opt/fissile/pre-stop.sh"
+        livenessProbe: ~
+        name: "loggregator-agent"
+        ports: ~
+        readinessProbe: ~
+        resources:
+          requests: {}
+          limits: {}
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: "/opt/fissile/config"
+          name: "deployment-manifest"
+          readOnly: true
+      dnsPolicy: "ClusterFirst"
+      imagePullSecrets:
+      - name: "registry-credentials"
+      restartPolicy: "Always"
+      serviceAccountName: "default-privileged"
+      terminationGracePeriodSeconds: 600
+      volumes:
+      - name: "deployment-manifest"
+        secret:
+          secretName: "deployment-manifest"
+          items:
+          - key: "deployment-manifest"
+            path: "deployment-manifest.yml"

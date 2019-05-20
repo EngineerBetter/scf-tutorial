@@ -1,0 +1,48 @@
+---
+# Service account "privileged" is used by the following instance groups:
+# - diego-api
+# - diego-brain
+# - diego-ssh
+# - doppler
+# - locket
+# - loggregator-agent
+# - nfs-broker
+# - router
+apiVersion: "v1"
+kind: "ServiceAccount"
+metadata:
+  name: "privileged"
+  labels:
+    app.kubernetes.io/component: "privileged"
+---
+# Role binding for service account "privileged" and role "configgin-role"
+apiVersion: "rbac.authorization.k8s.io/v1"
+kind: "RoleBinding"
+metadata:
+  name: "privileged-configgin-role-binding"
+  labels:
+    app.kubernetes.io/component: "privileged-configgin-role-binding"
+subjects:
+- kind: "ServiceAccount"
+  name: "privileged"
+roleRef:
+  apiGroup: "rbac.authorization.k8s.io"
+  kind: "Role"
+  name: "configgin-role"
+---
+# Cluster role binding for service account "privileged" and cluster role
+# "privileged"
+apiVersion: "rbac.authorization.k8s.io/v1"
+kind: "ClusterRoleBinding"
+metadata:
+  name: "privileged-privileged-cluster-binding"
+  labels:
+    app.kubernetes.io/component: "privileged-privileged-cluster-binding"
+subjects:
+- kind: "ServiceAccount"
+  name: "privileged"
+  namespace: "~"
+roleRef:
+  kind: "ClusterRole"
+  apiGroup: "rbac.authorization.k8s.io"
+  name: "privileged"

@@ -1,0 +1,75 @@
+---
+# Service account "default-privileged" is used by the following instance groups:
+# - adapter
+# - api-group
+# - autoscaler-api
+# - autoscaler-servicebroker
+# - bits
+# - blobstore
+# - cc-clock
+# - cc-uploader
+# - cc-worker
+# - cf-usb-group
+# - credhub-user
+# - log-api
+# - log-cache-scheduler
+# - nats
+# - smoke-tests
+# - syslog-scheduler
+# - tcp-router
+apiVersion: "v1"
+kind: "ServiceAccount"
+metadata:
+  name: "default-privileged"
+  labels:
+    app.kubernetes.io/component: "default-privileged"
+---
+# Role binding for service account "default-privileged" and role
+# "configgin-role"
+apiVersion: "rbac.authorization.k8s.io/v1"
+kind: "RoleBinding"
+metadata:
+  name: "default-privileged-configgin-role-binding"
+  labels:
+    app.kubernetes.io/component: "default-privileged-configgin-role-binding"
+subjects:
+- kind: "ServiceAccount"
+  name: "default-privileged"
+roleRef:
+  apiGroup: "rbac.authorization.k8s.io"
+  kind: "Role"
+  name: "configgin-role"
+---
+# Cluster role binding for service account "default-privileged" and cluster role
+# "nonprivileged"
+apiVersion: "rbac.authorization.k8s.io/v1"
+kind: "ClusterRoleBinding"
+metadata:
+  name: "default-privileged-nonprivileged-cluster-binding"
+  labels:
+    app.kubernetes.io/component: "default-privileged-nonprivileged-cluster-binding"
+subjects:
+- kind: "ServiceAccount"
+  name: "default-privileged"
+  namespace: "~"
+roleRef:
+  kind: "ClusterRole"
+  apiGroup: "rbac.authorization.k8s.io"
+  name: "nonprivileged"
+---
+# Cluster role binding for service account "default-privileged" and cluster role
+# "privileged"
+apiVersion: "rbac.authorization.k8s.io/v1"
+kind: "ClusterRoleBinding"
+metadata:
+  name: "default-privileged-privileged-cluster-binding"
+  labels:
+    app.kubernetes.io/component: "default-privileged-privileged-cluster-binding"
+subjects:
+- kind: "ServiceAccount"
+  name: "default-privileged"
+  namespace: "~"
+roleRef:
+  kind: "ClusterRole"
+  apiGroup: "rbac.authorization.k8s.io"
+  name: "privileged"

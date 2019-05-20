@@ -1,0 +1,21 @@
+---
+# Cluster role "nonprivileged" used by accounts:
+# - default
+# - default-privileged
+# - secret-generator
+# - tests
+apiVersion: "rbac.authorization.k8s.io/v1"
+kind: "ClusterRole"
+metadata:
+  name: "nonprivileged"
+  labels:
+    app.kubernetes.io/component: "nonprivileged"
+rules:
+- apiGroups:
+  - "extensions"
+  resourceNames:
+  - "nonprivileged"
+  resources:
+  - "podsecuritypolicies"
+  verbs:
+  - "use"

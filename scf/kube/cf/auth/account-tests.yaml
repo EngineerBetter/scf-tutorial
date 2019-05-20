@@ -1,0 +1,197 @@
+---
+# Service account "tests" is used by the following instance groups:
+# - acceptance-tests-brain
+# - sync-integration-tests
+apiVersion: "v1"
+kind: "ServiceAccount"
+metadata:
+  name: "tests"
+  labels:
+    app.kubernetes.io/component: "tests"
+---
+# Role binding for service account "tests" and role "configgin-role"
+apiVersion: "rbac.authorization.k8s.io/v1"
+kind: "RoleBinding"
+metadata:
+  name: "tests-configgin-role-binding"
+  labels:
+    app.kubernetes.io/component: "tests-configgin-role-binding"
+subjects:
+- kind: "ServiceAccount"
+  name: "tests"
+roleRef:
+  apiGroup: "rbac.authorization.k8s.io"
+  kind: "Role"
+  name: "configgin-role"
+---
+# Role "test-role" only used by account "[- tests]"
+apiVersion: "rbac.authorization.k8s.io/v1"
+kind: "Role"
+metadata:
+  name: "test-role"
+  labels:
+    app.kubernetes.io/component: "test-role"
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - "services"
+  verbs:
+  - "create"
+  - "get"
+  - "delete"
+- apiGroups:
+  - "extensions"
+  resources:
+  - "replicasets"
+  verbs:
+  - "create"
+  - "get"
+  - "list"
+  - "delete"
+  - "update"
+- apiGroups:
+  - "apps"
+  resources:
+  - "statefulsets"
+  verbs:
+  - "create"
+  - "get"
+  - "update"
+  - "delete"
+  - "list"
+- apiGroups:
+  - ""
+  resources:
+  - "pods"
+  verbs:
+  - "create"
+  - "get"
+  - "list"
+  - "delete"
+  - "update"
+- apiGroups:
+  - ""
+  resources:
+  - "pods/exec"
+  verbs:
+  - "create"
+  - "delete"
+- apiGroups:
+  - ""
+  resources:
+  - "pods/log"
+  verbs:
+  - "create"
+  - "delete"
+  - "get"
+  - "list"
+- apiGroups:
+  - ""
+  resources:
+  - "secrets"
+  verbs:
+  - "get"
+  - "list"
+---
+# Role binding for service account "tests" and role "test-role"
+apiVersion: "rbac.authorization.k8s.io/v1"
+kind: "RoleBinding"
+metadata:
+  name: "tests-test-role-binding"
+  labels:
+    app.kubernetes.io/component: "tests-test-role-binding"
+subjects:
+- kind: "ServiceAccount"
+  name: "tests"
+roleRef:
+  apiGroup: "rbac.authorization.k8s.io"
+  kind: "Role"
+  name: "test-role"
+---
+# Cluster role binding for service account "tests" and cluster role
+# "nonprivileged"
+apiVersion: "rbac.authorization.k8s.io/v1"
+kind: "ClusterRoleBinding"
+metadata:
+  name: "tests-nonprivileged-cluster-binding"
+  labels:
+    app.kubernetes.io/component: "tests-nonprivileged-cluster-binding"
+subjects:
+- kind: "ServiceAccount"
+  name: "tests"
+  namespace: "~"
+roleRef:
+  kind: "ClusterRole"
+  apiGroup: "rbac.authorization.k8s.io"
+  name: "nonprivileged"
+---
+# Cluster role "test-cluster-role" only used by account "[tests]"
+apiVersion: "rbac.authorization.k8s.io/v1"
+kind: "ClusterRole"
+metadata:
+  name: "test-cluster-role"
+  labels:
+    app.kubernetes.io/component: "test-cluster-role"
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - "namespaces"
+  verbs:
+  - "create"
+  - "get"
+  - "delete"
+- apiGroups:
+  - ""
+  resources:
+  - "pods"
+  - "pods/log"
+  verbs:
+  - "get"
+  - "list"
+  - "watch"
+- apiGroups:
+  - ""
+  resources:
+  - "pods/portforward"
+  verbs:
+  - "create"
+- apiGroups:
+  - "rbac.authorization.k8s.io"
+  resources:
+  - "clusterrolebindings"
+  verbs:
+  - "delete"
+- apiGroups:
+  - ""
+  resources:
+  - "persistentvolumes"
+  - "persistentvolumeclaims"
+  verbs:
+  - "get"
+  - "list"
+- apiGroups:
+  - "storage.k8s.io"
+  resources:
+  - "storageclasses"
+  verbs:
+  - "get"
+  - "list"
+---
+# Cluster role binding for service account "tests" and cluster role
+# "test-cluster-role"
+apiVersion: "rbac.authorization.k8s.io/v1"
+kind: "ClusterRoleBinding"
+metadata:
+  name: "tests-test-cluster-role-cluster-binding"
+  labels:
+    app.kubernetes.io/component: "tests-test-cluster-role-cluster-binding"
+subjects:
+- kind: "ServiceAccount"
+  name: "tests"
+  namespace: "~"
+roleRef:
+  kind: "ClusterRole"
+  apiGroup: "rbac.authorization.k8s.io"
+  name: "test-cluster-role"

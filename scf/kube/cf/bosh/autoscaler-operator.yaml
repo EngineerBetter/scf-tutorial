@@ -1,0 +1,192 @@
+---
+# The autoscaler-operator instance group contains the following jobs:
+#
+# - global-properties: Dummy BOSH job used to host global parameters that are
+#   required to configure SCF
+#
+# - authorize-internal-ca: Install both internal and UAA CA certificates
+#
+# Also: operator
+apiVersion: "apps/v1beta1"
+kind: "StatefulSet"
+metadata:
+  name: "autoscaler-operator"
+  labels:
+    app.kubernetes.io/component: "autoscaler-operator"
+spec:
+  podManagementPolicy: "Parallel"
+  replicas: 1
+  selector:
+    matchLabels:
+      skiff-role-name: "autoscaler-operator"
+  serviceName: "autoscaler-operator-set"
+  template:
+    metadata:
+      annotations: {}
+      labels:
+        app.kubernetes.io/component: "autoscaler-operator"
+      name: "autoscaler-operator"
+    spec:
+      containers:
+      - env:
+        - name: "AUTOSCALER_APPMETRICS_DB_CONNECTION_CONFIG_CONNECTION_MAX_LIFETIME"
+          value: "60s"
+        - name: "AUTOSCALER_APPMETRICS_DB_CONNECTION_CONFIG_MAX_IDLE_CONNECTIONS"
+          value: "10"
+        - name: "AUTOSCALER_APPMETRICS_DB_CONNECTION_CONFIG_MAX_OPEN_CONNECTIONS"
+          value: "100"
+        - name: "AUTOSCALER_DB_PASSWORD"
+          valueFrom:
+            secretKeyRef:
+              key: "autoscaler-db-password"
+              name: "secrets"
+        - name: "AUTOSCALER_INSTANCE_METRICS_DB_CONNECTION_CONFIG_CONNECTION_MAX_LIFETIME"
+          value: "60s"
+        - name: "AUTOSCALER_INSTANCE_METRICS_DB_CONNECTION_CONFIG_MAX_IDLE_CONNECTIONS"
+          value: "10"
+        - name: "AUTOSCALER_INSTANCE_METRICS_DB_CONNECTION_CONFIG_MAX_OPEN_CONNECTIONS"
+          value: "100"
+        - name: "AUTOSCALER_LOCK_DB_CONNECTION_CONFIG_CONNECTION_MAX_LIFETIME"
+          value: "60s"
+        - name: "AUTOSCALER_LOCK_DB_CONNECTION_CONFIG_MAX_IDLE_CONNECTIONS"
+          value: "10"
+        - name: "AUTOSCALER_LOCK_DB_CONNECTION_CONFIG_MAX_OPEN_CONNECTIONS"
+          value: "100"
+        - name: "AUTOSCALER_OPERATOR_APP_METRICS_DB_CUTOFF_DAYS"
+          value: "30"
+        - name: "AUTOSCALER_OPERATOR_APP_METRICS_DB_REFRESH_INTERVAL"
+          value: "24h"
+        - name: "AUTOSCALER_OPERATOR_APP_SYNC_INTERVAL"
+          value: "24h"
+        - name: "AUTOSCALER_OPERATOR_ENABLE_DB_LOCK"
+          value: "true"
+        - name: "AUTOSCALER_OPERATOR_INSTANCE_METRICS_DB_CUTOFF_DAYS"
+          value: "30"
+        - name: "AUTOSCALER_OPERATOR_INSTANCE_METRICS_DB_REFRESH_INTERVAL"
+          value: "24h"
+        - name: "AUTOSCALER_OPERATOR_LOCK_RETRY_INTERVAL"
+          value: "10s"
+        - name: "AUTOSCALER_OPERATOR_LOCK_TTL"
+          value: "15s"
+        - name: "AUTOSCALER_OPERATOR_SCALING_ENGINE_DB_CUTOFF_DAYS"
+          value: "30"
+        - name: "AUTOSCALER_OPERATOR_SCALING_ENGINE_DB_FRESH_INTERVAL"
+          value: "24h"
+        - name: "AUTOSCALER_OPERATOR_SCALING_ENGINE_SYNC_INTERVAL"
+          value: "600s"
+        - name: "AUTOSCALER_OPERATOR_SCHEDULER_SYNC_INTERVAL"
+          value: "600s"
+        - name: "AUTOSCALER_POLICY_DB_CONNECTION_CONFIG_CONNECTION_MAX_LIFETIME"
+          value: "60s"
+        - name: "AUTOSCALER_POLICY_DB_CONNECTION_CONFIG_MAX_IDLE_CONNECTIONS"
+          value: "10"
+        - name: "AUTOSCALER_POLICY_DB_CONNECTION_CONFIG_MAX_OPEN_CONNECTIONS"
+          value: "100"
+        - name: "AUTOSCALER_SCALING_ENGINE_CLIENT_CERT"
+          valueFrom:
+            secretKeyRef:
+              key: "autoscaler-scaling-engine-client-cert"
+              name: "secrets"
+        - name: "AUTOSCALER_SCALING_ENGINE_CLIENT_CERT_KEY"
+          valueFrom:
+            secretKeyRef:
+              key: "autoscaler-scaling-engine-client-cert-key"
+              name: "secrets"
+        - name: "AUTOSCALER_SCALING_ENGINE_DB_CONNECTION_CONFIG_CONNECTION_MAX_LIFETIME"
+          value: "60s"
+        - name: "AUTOSCALER_SCALING_ENGINE_DB_CONNECTION_CONFIG_MAX_IDLE_CONNECTIONS"
+          value: "10"
+        - name: "AUTOSCALER_SCALING_ENGINE_DB_CONNECTION_CONFIG_MAX_OPEN_CONNECTIONS"
+          value: "100"
+        - name: "AUTOSCALER_SCHEDULER_CLIENT_CERT"
+          valueFrom:
+            secretKeyRef:
+              key: "autoscaler-scheduler-client-cert"
+              name: "secrets"
+        - name: "AUTOSCALER_SCHEDULER_CLIENT_CERT_KEY"
+          valueFrom:
+            secretKeyRef:
+              key: "autoscaler-scheduler-client-cert-key"
+              name: "secrets"
+        - name: "AUTOSCALER_UAA_CLIENT_SECRET"
+          valueFrom:
+            secretKeyRef:
+              key: "autoscaler-uaa-client-secret"
+              name: "secrets"
+        - name: "AZ_LABEL_NAME"
+          value: ""
+        - name: "CATS_SUITES"
+          value: ""
+        - name: "GARDEN_ROOTFS_DRIVER"
+          value: "btrfs"
+        - name: "INTERNAL_CA_CERT"
+          valueFrom:
+            secretKeyRef:
+              key: "internal-ca-cert"
+              name: "secrets"
+        - name: "KUBERNETES_CLUSTER_DOMAIN"
+          value: ""
+        - name: "KUBERNETES_NAMESPACE"
+          valueFrom:
+            fieldRef:
+              fieldPath: "metadata.namespace"
+        - name: "LOG_LEVEL"
+          value: "info"
+        - name: "MONIT_PASSWORD"
+          valueFrom:
+            secretKeyRef:
+              key: "monit-password"
+              name: "secrets"
+        - name: "PZ_LABEL_NAME"
+          value: ""
+        - name: "SCF_LOG_HOST"
+          value: ""
+        - name: "SCF_LOG_PORT"
+          value: "514"
+        - name: "SCF_LOG_PROTOCOL"
+          value: "tcp"
+        - name: "UAA_CA_CERT"
+          valueFrom:
+            secretKeyRef:
+              key: "uaa-ca-cert"
+              name: "secrets"
+        - name: "VCAP_HARD_NPROC"
+          value: "2048"
+        - name: "VCAP_SOFT_NPROC"
+          value: "1024"
+        image: "registry.suse.com/cap/scf-autoscaler-operator:da6e4bb50b0030f7121376071b2afcc5a65a6871"
+        lifecycle:
+          preStop:
+            exec:
+              command:
+              - "/opt/fissile/pre-stop.sh"
+        livenessProbe: ~
+        name: "autoscaler-operator"
+        ports: ~
+        readinessProbe:
+          exec:
+            command:
+            - "/opt/fissile/readiness-probe.sh"
+        resources:
+          requests:
+            memory: "2350Mi"
+            cpu: "2000m"
+          limits: {}
+        securityContext:
+          allowPrivilegeEscalation: false
+        volumeMounts:
+        - mountPath: "/opt/fissile/config"
+          name: "deployment-manifest"
+          readOnly: true
+      dnsPolicy: "ClusterFirst"
+      imagePullSecrets:
+      - name: "registry-credentials"
+      restartPolicy: "Always"
+      terminationGracePeriodSeconds: 600
+      volumes:
+      - name: "deployment-manifest"
+        secret:
+          secretName: "deployment-manifest"
+          items:
+          - key: "deployment-manifest"
+            path: "deployment-manifest.yml"

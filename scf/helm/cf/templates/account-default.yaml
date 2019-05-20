@@ -1,0 +1,48 @@
+---
+# Role binding for service account "default" and role "configgin-role"
+{{- if and (eq (printf "%s" .Values.kube.auth) "rbac") (.Capabilities.APIVersions.Has "rbac.authorization.k8s.io/v1") }}
+apiVersion: "rbac.authorization.k8s.io/v1"
+kind: "RoleBinding"
+metadata:
+  name: "default-configgin-role-binding"
+  labels:
+    app.kubernetes.io/component: "default-configgin-role-binding"
+    skiff-role-name: "default-configgin-role-binding"
+    app.kubernetes.io/instance: {{ .Release.Name | quote }}
+    app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+    app.kubernetes.io/name: {{ default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" | quote }}
+    app.kubernetes.io/version: {{ default .Chart.Version .Chart.AppVersion | quote }}
+    helm.sh/chart: {{ printf "%s-%s" .Chart.Name (.Chart.Version | replace "+" "_") | quote }}
+subjects:
+- kind: "ServiceAccount"
+  name: "default"
+roleRef:
+  apiGroup: "rbac.authorization.k8s.io"
+  kind: "Role"
+  name: "configgin-role"
+{{- end }}
+---
+# Cluster role binding for service account "default" and cluster role
+# "nonprivileged"
+{{- if and (eq (printf "%s" .Values.kube.auth) "rbac") (.Capabilities.APIVersions.Has "rbac.authorization.k8s.io/v1") }}
+apiVersion: "rbac.authorization.k8s.io/v1"
+kind: "ClusterRoleBinding"
+metadata:
+  name: {{ template "fissile.SanitizeName" (printf "%s-default-nonprivileged-cluster-binding" .Release.Namespace) }}
+  labels:
+    app.kubernetes.io/component: {{ template "fissile.SanitizeName" (printf "%s-default-nonprivileged-cluster-binding" .Release.Namespace) }}
+    skiff-role-name: {{ template "fissile.SanitizeName" (printf "%s-default-nonprivileged-cluster-binding" .Release.Namespace) }}
+    app.kubernetes.io/instance: {{ .Release.Name | quote }}
+    app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+    app.kubernetes.io/name: {{ default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" | quote }}
+    app.kubernetes.io/version: {{ default .Chart.Version .Chart.AppVersion | quote }}
+    helm.sh/chart: {{ printf "%s-%s" .Chart.Name (.Chart.Version | replace "+" "_") | quote }}
+subjects:
+- kind: "ServiceAccount"
+  name: "default"
+  namespace: {{ .Release.Namespace }}
+roleRef:
+  kind: "ClusterRole"
+  apiGroup: "rbac.authorization.k8s.io"
+  name: {{ template "fissile.SanitizeName" (printf "%s-cluster-role-nonprivileged" .Release.Namespace) }}
+{{- end }}

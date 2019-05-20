@@ -1,0 +1,459 @@
+---
+apiVersion: "v1"
+items:
+- apiVersion: "v1"
+  kind: "Service"
+  metadata:
+    name: "bits-set"
+    labels:
+      app.kubernetes.io/component: "bits-set"
+      skiff-role-name: "bits-set"
+      app.kubernetes.io/instance: {{ .Release.Name | quote }}
+      app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+      app.kubernetes.io/name: {{ default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" | quote }}
+      app.kubernetes.io/version: {{ default .Chart.Version .Chart.AppVersion | quote }}
+      helm.sh/chart: {{ printf "%s-%s" .Chart.Name (.Chart.Version | replace "+" "_") | quote }}
+      {{- if .Values.config.use_istio }}
+      app: "bits-set"
+      {{- end }}
+  spec:
+    clusterIP: "None"
+    ports:
+    - name: "server"
+      port: 443
+      protocol: "TCP"
+      targetPort: 0
+    selector:
+      app.kubernetes.io/component: "bits"
+- apiVersion: "v1"
+  kind: "Service"
+  metadata:
+    name: "bits-bits-service-set"
+    labels:
+      app.kubernetes.io/component: "bits-bits-service-set"
+      skiff-role-name: "bits-bits-service-set"
+      app.kubernetes.io/instance: {{ .Release.Name | quote }}
+      app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+      app.kubernetes.io/name: {{ default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" | quote }}
+      app.kubernetes.io/version: {{ default .Chart.Version .Chart.AppVersion | quote }}
+      helm.sh/chart: {{ printf "%s-%s" .Chart.Name (.Chart.Version | replace "+" "_") | quote }}
+      {{- if .Values.config.use_istio }}
+      app: "bits-bits-service-set"
+      {{- end }}
+  spec:
+    clusterIP: "None"
+    ports:
+    - name: "server"
+      port: 443
+      protocol: "TCP"
+      targetPort: 0
+    selector:
+      app.kubernetes.io/component: "bits"
+- apiVersion: "v1"
+  kind: "Service"
+  metadata:
+    name: "bits-bits-service"
+    labels:
+      app.kubernetes.io/component: "bits-bits-service"
+      skiff-role-name: "bits-bits-service"
+      app.kubernetes.io/instance: {{ .Release.Name | quote }}
+      app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+      app.kubernetes.io/name: {{ default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" | quote }}
+      app.kubernetes.io/version: {{ default .Chart.Version .Chart.AppVersion | quote }}
+      helm.sh/chart: {{ printf "%s-%s" .Chart.Name (.Chart.Version | replace "+" "_") | quote }}
+      {{- if .Values.config.use_istio }}
+      app: "bits-bits-service"
+      {{- end }}
+  spec:
+    ports:
+    - name: "server"
+      port: 443
+      protocol: "TCP"
+      targetPort: 443
+    selector:
+      app.kubernetes.io/component: "bits"
+kind: "List"
+---
+# The bits instance group contains the following jobs:
+#
+# - global-properties: Dummy BOSH job used to host global parameters that are
+#   required to configure SCF
+#
+# - route_registrar: Used for registering routes
+#
+# - eirinifs: This job copies the eirinifs to a desired location
+#
+# Also: statsd_injector, bpm, and bits-service
+
+{{- if gt (int .Values.sizing.bits.count) 1 }}
+_maxReplicas: {{ fail "bits cannot have more than 1 instances" }}
+{{- end }}
+
+{{- if lt (int .Values.sizing.bits.count) 1 }}
+_minReplicas: {{ fail "bits must have at least 1 instances" }}
+{{- end }}
+
+{{- if .Values.sizing.HA }}
+_moved_sizing_HA: {{ fail "Bad use of moved variable sizing.HA. The new name to use is config.HA" }}
+{{- end }}
+
+{{- if .Values.sizing.cpu }}
+_moved_sizing_cpu_limits: {{ if .Values.sizing.cpu.limits }} {{ fail "Bad use of moved variable sizing.cpu.limits. The new name to use is config.cpu.limits" }} {{else}} ok {{end}}
+{{- end }}
+
+{{- if .Values.sizing.cpu }}
+_moved_sizing_cpu_requests: {{ if .Values.sizing.cpu.requests }} {{ fail "Bad use of moved variable sizing.cpu.requests. The new name to use is config.cpu.requests" }} {{else}} ok {{end}}
+{{- end }}
+
+{{- if .Values.sizing.memory }}
+_moved_sizing_memory_limits: {{ if .Values.sizing.memory.limits }} {{ fail "Bad use of moved variable sizing.memory.limits. The new name to use is config.memory.limits" }} {{else}} ok {{end}}
+{{- end }}
+
+{{- if .Values.sizing.memory }}
+_moved_sizing_memory_requests: {{ if .Values.sizing.memory.requests }} {{ fail "Bad use of moved variable sizing.memory.requests. The new name to use is config.memory.requests" }} {{else}} ok {{end}}
+{{- end }}
+
+apiVersion: "apps/v1beta1"
+kind: "StatefulSet"
+metadata:
+  name: "bits"
+  labels:
+    app.kubernetes.io/component: "bits"
+    skiff-role-name: "bits"
+    app.kubernetes.io/instance: {{ .Release.Name | quote }}
+    app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+    app.kubernetes.io/name: {{ default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" | quote }}
+    app.kubernetes.io/version: {{ default .Chart.Version .Chart.AppVersion | quote }}
+    helm.sh/chart: {{ printf "%s-%s" .Chart.Name (.Chart.Version | replace "+" "_") | quote }}
+
+    {{- if .Values.config.use_istio }}
+    app: "bits"
+    {{- end }}
+
+    {{- if .Values.config.use_istio }}
+    version: {{ default .Chart.Version .Chart.AppVersion | quote }}
+    {{- end }}
+
+spec:
+  podManagementPolicy: "Parallel"
+  replicas: {{ .Values.sizing.bits.count }}
+  selector:
+    matchLabels:
+      skiff-role-name: "bits"
+  serviceName: "bits-set"
+  template:
+    metadata:
+      name: "bits"
+      labels:
+        app.kubernetes.io/component: "bits"
+        skiff-role-name: "bits"
+        app.kubernetes.io/instance: {{ .Release.Name | quote }}
+        app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+        app.kubernetes.io/name: {{ default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" | quote }}
+        app.kubernetes.io/version: {{ default .Chart.Version .Chart.AppVersion | quote }}
+        helm.sh/chart: {{ printf "%s-%s" .Chart.Name (.Chart.Version | replace "+" "_") | quote }}
+
+        {{- if .Values.config.use_istio }}
+        app: "bits"
+        {{- end }}
+
+        {{- if .Values.config.use_istio }}
+        version: {{ default .Chart.Version .Chart.AppVersion | quote }}
+        {{- end }}
+
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/secrets.yaml") . | sha256sum }}
+        {{- if .Values.config.use_istio }}
+        sidecar.istio.io/inject: "false"
+        {{- end }}
+    spec:
+      affinity:
+        {{- if .Values.sizing.bits.affinity.nodeAffinity }}
+        nodeAffinity: {{ toJson .Values.sizing.bits.affinity.nodeAffinity }}
+        {{- end }}
+      containers:
+      - env:
+        - name: "AZ_LABEL_NAME"
+          value: {{if ne (typeOf .Values.env.AZ_LABEL_NAME) "<nil>"}}{{if has (kindOf .Values.env.AZ_LABEL_NAME) (list "map" "slice")}}{{.Values.env.AZ_LABEL_NAME | toJson | quote}}{{else}}{{.Values.env.AZ_LABEL_NAME | quote}}{{end}}{{else}}""{{end}}
+
+        {{- if not .Values.secrets.BITS_ADMIN_USERS_PASSWORD }}
+        - name: "BITS_ADMIN_USERS_PASSWORD"
+          valueFrom:
+            secretKeyRef:
+              key: "bits-admin-users-password"
+              name: "secrets-{{ .Chart.Version }}-{{ .Values.kube.secrets_generation_counter }}"
+        {{- end }}
+
+        {{- if .Values.secrets.BITS_ADMIN_USERS_PASSWORD }}
+        - name: "BITS_ADMIN_USERS_PASSWORD"
+          valueFrom:
+            secretKeyRef:
+              key: "bits-admin-users-password"
+              name: "secrets"
+        {{- end }}
+
+        {{- if .Values.secrets.BITS_SERVICE_SECRET }}
+        - name: "BITS_SERVICE_SECRET"
+          valueFrom:
+            secretKeyRef:
+              key: "bits-service-secret"
+              name: "secrets"
+        {{- end }}
+
+        {{- if not .Values.secrets.BITS_SERVICE_SECRET }}
+        - name: "BITS_SERVICE_SECRET"
+          valueFrom:
+            secretKeyRef:
+              key: "bits-service-secret"
+              name: "secrets-{{ .Chart.Version }}-{{ .Values.kube.secrets_generation_counter }}"
+        {{- end }}
+
+        {{- if .Values.secrets.BITS_SERVICE_SSL_CERT }}
+        - name: "BITS_SERVICE_SSL_CERT"
+          valueFrom:
+            secretKeyRef:
+              key: "bits-service-ssl-cert"
+              name: "secrets"
+        {{- end }}
+
+        {{- if not .Values.secrets.BITS_SERVICE_SSL_CERT }}
+        - name: "BITS_SERVICE_SSL_CERT"
+          valueFrom:
+            secretKeyRef:
+              key: "bits-service-ssl-cert"
+              name: "secrets-{{ .Chart.Version }}-{{ .Values.kube.secrets_generation_counter }}"
+        {{- end }}
+
+        {{- if not .Values.secrets.BITS_SERVICE_SSL_CERT_KEY }}
+        - name: "BITS_SERVICE_SSL_CERT_KEY"
+          valueFrom:
+            secretKeyRef:
+              key: "bits-service-ssl-cert-key"
+              name: "secrets-{{ .Chart.Version }}-{{ .Values.kube.secrets_generation_counter }}"
+        {{- end }}
+
+        {{- if .Values.secrets.BITS_SERVICE_SSL_CERT_KEY }}
+        - name: "BITS_SERVICE_SSL_CERT_KEY"
+          valueFrom:
+            secretKeyRef:
+              key: "bits-service-ssl-cert-key"
+              name: "secrets"
+        {{- end }}
+
+        {{- if .Values.secrets.BLOBSTORE_PASSWORD }}
+        - name: "BLOBSTORE_PASSWORD"
+          valueFrom:
+            secretKeyRef:
+              key: "blobstore-password"
+              name: "secrets"
+        {{- end }}
+
+        {{- if not .Values.secrets.BLOBSTORE_PASSWORD }}
+        - name: "BLOBSTORE_PASSWORD"
+          valueFrom:
+            secretKeyRef:
+              key: "blobstore-password"
+              name: "secrets-{{ .Chart.Version }}-{{ .Values.kube.secrets_generation_counter }}"
+        {{- end }}
+
+        - name: "CATS_SUITES"
+          value: {{if ne (typeOf .Values.env.CATS_SUITES) "<nil>"}}{{if has (kindOf .Values.env.CATS_SUITES) (list "map" "slice")}}{{.Values.env.CATS_SUITES | toJson | quote}}{{else}}{{.Values.env.CATS_SUITES | quote}}{{end}}{{else}}""{{end}}
+
+        {{- if not .Values.secrets.CC_PUBLIC_TLS_CERT }}
+        - name: "CC_PUBLIC_TLS_CERT"
+          valueFrom:
+            secretKeyRef:
+              key: "cc-public-tls-cert"
+              name: "secrets-{{ .Chart.Version }}-{{ .Values.kube.secrets_generation_counter }}"
+        {{- end }}
+
+        {{- if .Values.secrets.CC_PUBLIC_TLS_CERT }}
+        - name: "CC_PUBLIC_TLS_CERT"
+          valueFrom:
+            secretKeyRef:
+              key: "cc-public-tls-cert"
+              name: "secrets"
+        {{- end }}
+
+        {{- if not .Values.secrets.CC_PUBLIC_TLS_CERT_KEY }}
+        - name: "CC_PUBLIC_TLS_CERT_KEY"
+          valueFrom:
+            secretKeyRef:
+              key: "cc-public-tls-cert-key"
+              name: "secrets-{{ .Chart.Version }}-{{ .Values.kube.secrets_generation_counter }}"
+        {{- end }}
+
+        {{- if .Values.secrets.CC_PUBLIC_TLS_CERT_KEY }}
+        - name: "CC_PUBLIC_TLS_CERT_KEY"
+          valueFrom:
+            secretKeyRef:
+              key: "cc-public-tls-cert-key"
+              name: "secrets"
+        {{- end }}
+
+        {{- if not .Values.secrets.CC_SERVER_CRT }}
+        - name: "CC_SERVER_CRT"
+          valueFrom:
+            secretKeyRef:
+              key: "cc-server-crt"
+              name: "secrets-{{ .Chart.Version }}-{{ .Values.kube.secrets_generation_counter }}"
+        {{- end }}
+
+        {{- if .Values.secrets.CC_SERVER_CRT }}
+        - name: "CC_SERVER_CRT"
+          valueFrom:
+            secretKeyRef:
+              key: "cc-server-crt"
+              name: "secrets"
+        {{- end }}
+
+        {{- if .Values.secrets.CC_SERVER_CRT_KEY }}
+        - name: "CC_SERVER_CRT_KEY"
+          valueFrom:
+            secretKeyRef:
+              key: "cc-server-crt-key"
+              name: "secrets"
+        {{- end }}
+
+        {{- if not .Values.secrets.CC_SERVER_CRT_KEY }}
+        - name: "CC_SERVER_CRT_KEY"
+          valueFrom:
+            secretKeyRef:
+              key: "cc-server-crt-key"
+              name: "secrets-{{ .Chart.Version }}-{{ .Values.kube.secrets_generation_counter }}"
+        {{- end }}
+
+        - name: "DOMAIN"
+          value: {{if ne (typeOf .Values.env.DOMAIN) "<nil>"}}{{if has (kindOf .Values.env.DOMAIN) (list "map" "slice")}}{{.Values.env.DOMAIN | toJson | quote}}{{else}}{{.Values.env.DOMAIN | quote}}{{end}}{{else}}{{fail "env.DOMAIN has not been set"}}{{end}}
+        - name: "GARDEN_ROOTFS_DRIVER"
+          value: {{if ne (typeOf .Values.env.GARDEN_ROOTFS_DRIVER) "<nil>"}}{{if has (kindOf .Values.env.GARDEN_ROOTFS_DRIVER) (list "map" "slice")}}{{.Values.env.GARDEN_ROOTFS_DRIVER | toJson | quote}}{{else}}{{.Values.env.GARDEN_ROOTFS_DRIVER | quote}}{{end}}{{else}}{{fail "env.GARDEN_ROOTFS_DRIVER has not been set"}}{{end}}
+
+        {{- if .Values.secrets.INTERNAL_CA_CERT }}
+        - name: "INTERNAL_CA_CERT"
+          valueFrom:
+            secretKeyRef:
+              key: "internal-ca-cert"
+              name: "secrets"
+        {{- end }}
+
+        {{- if not .Values.secrets.INTERNAL_CA_CERT }}
+        - name: "INTERNAL_CA_CERT"
+          valueFrom:
+            secretKeyRef:
+              key: "internal-ca-cert"
+              name: "secrets-{{ .Chart.Version }}-{{ .Values.kube.secrets_generation_counter }}"
+        {{- end }}
+
+        - name: "KUBERNETES_CLUSTER_DOMAIN"
+          value: {{if ne (typeOf .Values.env.KUBERNETES_CLUSTER_DOMAIN) "<nil>"}}{{if has (kindOf .Values.env.KUBERNETES_CLUSTER_DOMAIN) (list "map" "slice")}}{{.Values.env.KUBERNETES_CLUSTER_DOMAIN | toJson | quote}}{{else}}{{.Values.env.KUBERNETES_CLUSTER_DOMAIN | quote}}{{end}}{{else}}""{{end}}
+        - name: "KUBERNETES_NAMESPACE"
+          valueFrom:
+            fieldRef:
+              fieldPath: "metadata.namespace"
+        - name: "KUBE_SIZING_NATS_COUNT"
+          value: {{ .Values.sizing.nats.count | quote }}
+
+        {{- if not .Values.secrets.MONIT_PASSWORD }}
+        - name: "MONIT_PASSWORD"
+          valueFrom:
+            secretKeyRef:
+              key: "monit-password"
+              name: "secrets-{{ .Chart.Version }}-{{ .Values.kube.secrets_generation_counter }}"
+        {{- end }}
+
+        {{- if .Values.secrets.MONIT_PASSWORD }}
+        - name: "MONIT_PASSWORD"
+          valueFrom:
+            secretKeyRef:
+              key: "monit-password"
+              name: "secrets"
+        {{- end }}
+
+        {{- if .Values.secrets.NATS_PASSWORD }}
+        - name: "NATS_PASSWORD"
+          valueFrom:
+            secretKeyRef:
+              key: "nats-password"
+              name: "secrets"
+        {{- end }}
+
+        {{- if not .Values.secrets.NATS_PASSWORD }}
+        - name: "NATS_PASSWORD"
+          valueFrom:
+            secretKeyRef:
+              key: "nats-password"
+              name: "secrets-{{ .Chart.Version }}-{{ .Values.kube.secrets_generation_counter }}"
+        {{- end }}
+
+        - name: "PZ_LABEL_NAME"
+          value: {{if ne (typeOf .Values.env.PZ_LABEL_NAME) "<nil>"}}{{if has (kindOf .Values.env.PZ_LABEL_NAME) (list "map" "slice")}}{{.Values.env.PZ_LABEL_NAME | toJson | quote}}{{else}}{{.Values.env.PZ_LABEL_NAME | quote}}{{end}}{{else}}""{{end}}
+        - name: "SCF_LOG_HOST"
+          value: {{if ne (typeOf .Values.env.SCF_LOG_HOST) "<nil>"}}{{if has (kindOf .Values.env.SCF_LOG_HOST) (list "map" "slice")}}{{.Values.env.SCF_LOG_HOST | toJson | quote}}{{else}}{{.Values.env.SCF_LOG_HOST | quote}}{{end}}{{else}}""{{end}}
+        - name: "SCF_LOG_PORT"
+          value: {{if ne (typeOf .Values.env.SCF_LOG_PORT) "<nil>"}}{{if has (kindOf .Values.env.SCF_LOG_PORT) (list "map" "slice")}}{{.Values.env.SCF_LOG_PORT | toJson | quote}}{{else}}{{.Values.env.SCF_LOG_PORT | quote}}{{end}}{{else}}""{{end}}
+        - name: "SCF_LOG_PROTOCOL"
+          value: {{if ne (typeOf .Values.env.SCF_LOG_PROTOCOL) "<nil>"}}{{if has (kindOf .Values.env.SCF_LOG_PROTOCOL) (list "map" "slice")}}{{.Values.env.SCF_LOG_PROTOCOL | toJson | quote}}{{else}}{{.Values.env.SCF_LOG_PROTOCOL | quote}}{{end}}{{else}}{{fail "env.SCF_LOG_PROTOCOL has not been set"}}{{end}}
+        - name: "VCAP_HARD_NPROC"
+          value: {{ .Values.kube.limits.nproc.hard | quote }}
+        - name: "VCAP_SOFT_NPROC"
+          value: {{ .Values.kube.limits.nproc.soft | quote }}
+        image: "{{ .Values.kube.registry.hostname }}/{{ .Values.kube.organization }}/scf-bits:7c1d65845a089e7cec55a05c8b7358df373b02d5"
+        lifecycle:
+          preStop:
+            exec:
+              command:
+              - "/opt/fissile/pre-stop.sh"
+        livenessProbe: ~
+        name: "bits"
+        ports:
+        - containerPort: 443
+          name: "server"
+          protocol: "TCP"
+        readinessProbe:
+          exec:
+            command:
+            - "/opt/fissile/readiness-probe.sh"
+        resources:
+          requests:
+            {{- if and .Values.config.memory.requests .Values.sizing.bits.memory.request }}
+            memory: "{{ int .Values.sizing.bits.memory.request }}Mi"
+            {{- end }}
+
+            {{- if and .Values.config.cpu.requests .Values.sizing.bits.cpu.request }}
+            cpu: "{{ int .Values.sizing.bits.cpu.request }}m"
+            {{- end }}
+
+          limits:
+            {{- if and .Values.config.memory.limits .Values.sizing.bits.memory.limit }}
+            memory: "{{ int .Values.sizing.bits.memory.limit }}Mi"
+            {{- end }}
+
+            {{- if and .Values.config.cpu.limits .Values.sizing.bits.cpu.limit }}
+            cpu: "{{ int .Values.sizing.bits.cpu.limit }}m"
+            {{- end }}
+
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: "/opt/fissile/config"
+          name: "deployment-manifest"
+          readOnly: true
+      dnsPolicy: "ClusterFirst"
+      imagePullSecrets:
+      - name: "registry-credentials"
+      restartPolicy: "Always"
+      {{- if and (eq (printf "%s" .Values.kube.auth) "rbac") (.Capabilities.APIVersions.Has "rbac.authorization.k8s.io/v1") }}
+      serviceAccountName: "default-privileged"
+      {{- end }}
+      terminationGracePeriodSeconds: 600
+      volumes:
+      - name: "deployment-manifest"
+        secret:
+          secretName: "deployment-manifest"
+          items:
+          - key: "deployment-manifest"
+            path: "deployment-manifest.yml"
+  {{- if or (gt (int .Capabilities.KubeVersion.Major) 1) (and (eq (int .Capabilities.KubeVersion.Major) 1) (ge (.Capabilities.KubeVersion.Minor | trimSuffix "+" | int) 7)) }}
+  updateStrategy:
+    type: "RollingUpdate"
+  {{- end }}

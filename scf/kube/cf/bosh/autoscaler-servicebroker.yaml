@@ -1,0 +1,232 @@
+---
+apiVersion: "v1"
+items:
+- apiVersion: "v1"
+  kind: "Service"
+  metadata:
+    name: "autoscaler-servicebroker-set"
+    labels:
+      app.kubernetes.io/component: "autoscaler-servicebroker-set"
+  spec:
+    clusterIP: "None"
+    ports:
+    - name: "broker"
+      port: 7107
+      protocol: "TCP"
+      targetPort: 0
+    - name: "broker-public"
+      port: 7101
+      protocol: "TCP"
+      targetPort: 0
+    selector:
+      app.kubernetes.io/component: "autoscaler-servicebroker"
+- apiVersion: "v1"
+  kind: "Service"
+  metadata:
+    name: "autoscaler-servicebroker-servicebroker-set"
+    labels:
+      app.kubernetes.io/component: "autoscaler-servicebroker-servicebroker-set"
+  spec:
+    clusterIP: "None"
+    ports:
+    - name: "broker"
+      port: 7107
+      protocol: "TCP"
+      targetPort: 0
+    - name: "broker-public"
+      port: 7101
+      protocol: "TCP"
+      targetPort: 0
+    selector:
+      app.kubernetes.io/component: "autoscaler-servicebroker"
+- apiVersion: "v1"
+  kind: "Service"
+  metadata:
+    name: "autoscaler-servicebroker-servicebroker"
+    labels:
+      app.kubernetes.io/component: "autoscaler-servicebroker-servicebroker"
+  spec:
+    ports:
+    - name: "broker"
+      port: 7107
+      protocol: "TCP"
+      targetPort: 7107
+    - name: "broker-public"
+      port: 7101
+      protocol: "TCP"
+      targetPort: 7101
+    selector:
+      app.kubernetes.io/component: "autoscaler-servicebroker"
+kind: "List"
+---
+# The autoscaler-servicebroker instance group contains the following jobs:
+#
+# - global-properties: Dummy BOSH job used to host global parameters that are
+#   required to configure SCF
+#
+# - authorize-internal-ca: Install both internal and UAA CA certificates
+#
+# - route_registrar: Used for registering routes
+#
+# Also: servicebroker and bpm
+apiVersion: "apps/v1beta1"
+kind: "StatefulSet"
+metadata:
+  name: "autoscaler-servicebroker"
+  labels:
+    app.kubernetes.io/component: "autoscaler-servicebroker"
+spec:
+  podManagementPolicy: "Parallel"
+  replicas: 1
+  selector:
+    matchLabels:
+      skiff-role-name: "autoscaler-servicebroker"
+  serviceName: "autoscaler-servicebroker-set"
+  template:
+    metadata:
+      annotations: {}
+      labels:
+        app.kubernetes.io/component: "autoscaler-servicebroker"
+      name: "autoscaler-servicebroker"
+    spec:
+      containers:
+      - env:
+        - name: "AUTOSCALER_ASAPI_CLIENT_CERT"
+          valueFrom:
+            secretKeyRef:
+              key: "autoscaler-asapi-client-cert"
+              name: "secrets"
+        - name: "AUTOSCALER_ASAPI_CLIENT_CERT_KEY"
+          valueFrom:
+            secretKeyRef:
+              key: "autoscaler-asapi-client-cert-key"
+              name: "secrets"
+        - name: "AUTOSCALER_ASAPI_PUBLIC_SERVER_CERT"
+          valueFrom:
+            secretKeyRef:
+              key: "autoscaler-asapi-public-server-cert"
+              name: "secrets"
+        - name: "AUTOSCALER_ASAPI_PUBLIC_SERVER_CERT_KEY"
+          valueFrom:
+            secretKeyRef:
+              key: "autoscaler-asapi-public-server-cert-key"
+              name: "secrets"
+        - name: "AUTOSCALER_DB_PASSWORD"
+          valueFrom:
+            secretKeyRef:
+              key: "autoscaler-db-password"
+              name: "secrets"
+        - name: "AUTOSCALER_SERVICE_BROKER_DB_CONFIG_IDLE_TIMEOUT"
+          value: "1000"
+        - name: "AUTOSCALER_SERVICE_BROKER_DB_CONFIG_MAX_CONNECTIONS"
+          value: "10"
+        - name: "AUTOSCALER_SERVICE_BROKER_DB_CONFIG_MIN_CONNECTIONS"
+          value: "0"
+        - name: "AUTOSCALER_SERVICE_BROKER_HTTP_REQUEST_TIMEOUT"
+          value: "5000"
+        - name: "AUTOSCALER_SERVICE_BROKER_PASSWORD"
+          valueFrom:
+            secretKeyRef:
+              key: "autoscaler-service-broker-password"
+              name: "secrets"
+        - name: "AUTOSCALER_SERVICE_BROKER_SERVER_CERT"
+          valueFrom:
+            secretKeyRef:
+              key: "autoscaler-service-broker-server-cert"
+              name: "secrets"
+        - name: "AUTOSCALER_SERVICE_BROKER_SERVER_CERT_KEY"
+          valueFrom:
+            secretKeyRef:
+              key: "autoscaler-service-broker-server-cert-key"
+              name: "secrets"
+        - name: "AZ_LABEL_NAME"
+          value: ""
+        - name: "CATS_SUITES"
+          value: ""
+        - name: "DOMAIN"
+          value: ""
+        - name: "GARDEN_ROOTFS_DRIVER"
+          value: "btrfs"
+        - name: "INTERNAL_CA_CERT"
+          valueFrom:
+            secretKeyRef:
+              key: "internal-ca-cert"
+              name: "secrets"
+        - name: "KUBERNETES_CLUSTER_DOMAIN"
+          value: ""
+        - name: "KUBERNETES_NAMESPACE"
+          valueFrom:
+            fieldRef:
+              fieldPath: "metadata.namespace"
+        - name: "KUBE_SIZING_NATS_COUNT"
+          value: "1"
+        - name: "MONIT_PASSWORD"
+          valueFrom:
+            secretKeyRef:
+              key: "monit-password"
+              name: "secrets"
+        - name: "NATS_PASSWORD"
+          valueFrom:
+            secretKeyRef:
+              key: "nats-password"
+              name: "secrets"
+        - name: "PZ_LABEL_NAME"
+          value: ""
+        - name: "SCF_LOG_HOST"
+          value: ""
+        - name: "SCF_LOG_PORT"
+          value: "514"
+        - name: "SCF_LOG_PROTOCOL"
+          value: "tcp"
+        - name: "UAA_CA_CERT"
+          valueFrom:
+            secretKeyRef:
+              key: "uaa-ca-cert"
+              name: "secrets"
+        - name: "VCAP_HARD_NPROC"
+          value: "2048"
+        - name: "VCAP_SOFT_NPROC"
+          value: "1024"
+        image: "registry.suse.com/cap/scf-autoscaler-servicebroker:a4edaa5d38f2fd6a9607d02414bda702cc5acbdc"
+        lifecycle:
+          preStop:
+            exec:
+              command:
+              - "/opt/fissile/pre-stop.sh"
+        livenessProbe: ~
+        name: "autoscaler-servicebroker"
+        ports:
+        - containerPort: 7107
+          name: "broker"
+          protocol: "TCP"
+        - containerPort: 7101
+          name: "broker-public"
+          protocol: "TCP"
+        readinessProbe:
+          exec:
+            command:
+            - "/opt/fissile/readiness-probe.sh"
+        resources:
+          requests:
+            memory: "2350Mi"
+            cpu: "2000m"
+          limits: {}
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: "/opt/fissile/config"
+          name: "deployment-manifest"
+          readOnly: true
+      dnsPolicy: "ClusterFirst"
+      imagePullSecrets:
+      - name: "registry-credentials"
+      restartPolicy: "Always"
+      serviceAccountName: "default-privileged"
+      terminationGracePeriodSeconds: 600
+      volumes:
+      - name: "deployment-manifest"
+        secret:
+          secretName: "deployment-manifest"
+          items:
+          - key: "deployment-manifest"
+            path: "deployment-manifest.yml"

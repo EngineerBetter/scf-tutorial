@@ -1,0 +1,40 @@
+---
+# Role "configgin-role" used by accounts:
+# - default
+# - default-privileged
+# - eirini
+# - eirini-privileged
+# - garden-runc
+# - privileged
+# - secret-generator
+# - tests
+# - withsysresource
+# - withsysresource-privileged
+apiVersion: "rbac.authorization.k8s.io/v1"
+kind: "Role"
+metadata:
+  name: "configgin-role"
+  labels:
+    app.kubernetes.io/component: "configgin-role"
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - "pods"
+  verbs:
+  - "get"
+  - "list"
+  - "patch"
+- apiGroups:
+  - ""
+  resources:
+  - "services"
+  verbs:
+  - "get"
+- apiGroups:
+  - "apps"
+  resources:
+  - "statefulsets"
+  verbs:
+  - "get"
+  - "patch"

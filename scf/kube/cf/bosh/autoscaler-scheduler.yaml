@@ -1,0 +1,188 @@
+---
+apiVersion: "v1"
+items:
+- apiVersion: "v1"
+  kind: "Service"
+  metadata:
+    name: "autoscaler-scheduler-set"
+    labels:
+      app.kubernetes.io/component: "autoscaler-scheduler-set"
+  spec:
+    clusterIP: "None"
+    ports:
+    - name: "scheduler"
+      port: 7102
+      protocol: "TCP"
+      targetPort: 0
+    selector:
+      app.kubernetes.io/component: "autoscaler-scheduler"
+- apiVersion: "v1"
+  kind: "Service"
+  metadata:
+    name: "autoscaler-scheduler-scheduler-set"
+    labels:
+      app.kubernetes.io/component: "autoscaler-scheduler-scheduler-set"
+  spec:
+    clusterIP: "None"
+    ports:
+    - name: "scheduler"
+      port: 7102
+      protocol: "TCP"
+      targetPort: 0
+    selector:
+      app.kubernetes.io/component: "autoscaler-scheduler"
+- apiVersion: "v1"
+  kind: "Service"
+  metadata:
+    name: "autoscaler-scheduler-scheduler"
+    labels:
+      app.kubernetes.io/component: "autoscaler-scheduler-scheduler"
+  spec:
+    ports:
+    - name: "scheduler"
+      port: 7102
+      protocol: "TCP"
+      targetPort: 7102
+    selector:
+      app.kubernetes.io/component: "autoscaler-scheduler"
+kind: "List"
+---
+# The autoscaler-scheduler instance group contains the following jobs:
+#
+# - global-properties: Dummy BOSH job used to host global parameters that are
+#   required to configure SCF
+#
+# - authorize-internal-ca: Install both internal and UAA CA certificates
+#
+# Also: scheduler
+apiVersion: "apps/v1beta1"
+kind: "StatefulSet"
+metadata:
+  name: "autoscaler-scheduler"
+  labels:
+    app.kubernetes.io/component: "autoscaler-scheduler"
+spec:
+  podManagementPolicy: "Parallel"
+  replicas: 1
+  selector:
+    matchLabels:
+      skiff-role-name: "autoscaler-scheduler"
+  serviceName: "autoscaler-scheduler-set"
+  template:
+    metadata:
+      annotations: {}
+      labels:
+        app.kubernetes.io/component: "autoscaler-scheduler"
+      name: "autoscaler-scheduler"
+    spec:
+      containers:
+      - env:
+        - name: "AUTOSCALER_DB_PASSWORD"
+          valueFrom:
+            secretKeyRef:
+              key: "autoscaler-db-password"
+              name: "secrets"
+        - name: "AUTOSCALER_SCALING_ENGINE_CLIENT_CERT"
+          valueFrom:
+            secretKeyRef:
+              key: "autoscaler-scaling-engine-client-cert"
+              name: "secrets"
+        - name: "AUTOSCALER_SCALING_ENGINE_CLIENT_CERT_KEY"
+          valueFrom:
+            secretKeyRef:
+              key: "autoscaler-scaling-engine-client-cert-key"
+              name: "secrets"
+        - name: "AUTOSCALER_SCHEDULER_JOB_RESCHEDULE_INTERVAL_MILISECOND"
+          value: "100"
+        - name: "AUTOSCALER_SCHEDULER_JOB_RESCHEDULE_MAXCOUNT"
+          value: "6"
+        - name: "AUTOSCALER_SCHEDULER_NOTIFICATION_RESCHEDULE_MAXCOUNT"
+          value: "3"
+        - name: "AUTOSCALER_SCHEDULER_SERVER_CERT"
+          valueFrom:
+            secretKeyRef:
+              key: "autoscaler-scheduler-server-cert"
+              name: "secrets"
+        - name: "AUTOSCALER_SCHEDULER_SERVER_CERT_KEY"
+          valueFrom:
+            secretKeyRef:
+              key: "autoscaler-scheduler-server-cert-key"
+              name: "secrets"
+        - name: "AZ_LABEL_NAME"
+          value: ""
+        - name: "CATS_SUITES"
+          value: ""
+        - name: "GARDEN_ROOTFS_DRIVER"
+          value: "btrfs"
+        - name: "INTERNAL_CA_CERT"
+          valueFrom:
+            secretKeyRef:
+              key: "internal-ca-cert"
+              name: "secrets"
+        - name: "KUBERNETES_CLUSTER_DOMAIN"
+          value: ""
+        - name: "KUBERNETES_NAMESPACE"
+          valueFrom:
+            fieldRef:
+              fieldPath: "metadata.namespace"
+        - name: "MONIT_PASSWORD"
+          valueFrom:
+            secretKeyRef:
+              key: "monit-password"
+              name: "secrets"
+        - name: "PZ_LABEL_NAME"
+          value: ""
+        - name: "SCF_LOG_HOST"
+          value: ""
+        - name: "SCF_LOG_PORT"
+          value: "514"
+        - name: "SCF_LOG_PROTOCOL"
+          value: "tcp"
+        - name: "UAA_CA_CERT"
+          valueFrom:
+            secretKeyRef:
+              key: "uaa-ca-cert"
+              name: "secrets"
+        - name: "VCAP_HARD_NPROC"
+          value: "2048"
+        - name: "VCAP_SOFT_NPROC"
+          value: "1024"
+        image: "registry.suse.com/cap/scf-autoscaler-scheduler:f3da70b3931d95046a1368476dde62533d970a4c"
+        lifecycle:
+          preStop:
+            exec:
+              command:
+              - "/opt/fissile/pre-stop.sh"
+        livenessProbe: ~
+        name: "autoscaler-scheduler"
+        ports:
+        - containerPort: 7102
+          name: "scheduler"
+          protocol: "TCP"
+        readinessProbe:
+          exec:
+            command:
+            - "/opt/fissile/readiness-probe.sh"
+        resources:
+          requests:
+            memory: "2350Mi"
+            cpu: "2000m"
+          limits: {}
+        securityContext:
+          allowPrivilegeEscalation: false
+        volumeMounts:
+        - mountPath: "/opt/fissile/config"
+          name: "deployment-manifest"
+          readOnly: true
+      dnsPolicy: "ClusterFirst"
+      imagePullSecrets:
+      - name: "registry-credentials"
+      restartPolicy: "Always"
+      terminationGracePeriodSeconds: 600
+      volumes:
+      - name: "deployment-manifest"
+        secret:
+          secretName: "deployment-manifest"
+          items:
+          - key: "deployment-manifest"
+            path: "deployment-manifest.yml"

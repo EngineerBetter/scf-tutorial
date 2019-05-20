@@ -1,0 +1,27 @@
+---
+# Pod security policy "withsysresource"
+apiVersion: "extensions/v1beta1"
+kind: "PodSecurityPolicy"
+metadata:
+  name: "withsysresource"
+  labels:
+    app.kubernetes.io/component: "withsysresource"
+spec:
+  allowedCapabilities:
+  - "SYS_RESOURCE"
+  fsGroup:
+    rule: "RunAsAny"
+  runAsUser:
+    rule: "RunAsAny"
+  seLinux:
+    rule: "RunAsAny"
+  supplementalGroups:
+    rule: "RunAsAny"
+  volumes:
+  - "configMap"
+  - "secret"
+  - "emptyDir"
+  - "downwardAPI"
+  - "projected"
+  - "persistentVolumeClaim"
+  - "nfs"

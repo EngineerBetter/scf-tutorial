@@ -1,0 +1,33 @@
+---
+# Pod security policy "privileged"
+apiVersion: "extensions/v1beta1"
+kind: "PodSecurityPolicy"
+metadata:
+  name: "privileged"
+  labels:
+    app.kubernetes.io/component: "privileged"
+spec:
+  allowPrivilegeEscalation: true
+  allowedCapabilities:
+  - "*"
+  defaultAllowPrivilegeEscalation: true
+  fsGroup:
+    rule: "RunAsAny"
+  hostPorts:
+  - max: 65535
+    min: 0
+  privileged: true
+  runAsUser:
+    rule: "RunAsAny"
+  seLinux:
+    rule: "RunAsAny"
+  supplementalGroups:
+    rule: "RunAsAny"
+  volumes:
+  - "configMap"
+  - "secret"
+  - "emptyDir"
+  - "downwardAPI"
+  - "projected"
+  - "persistentVolumeClaim"
+  - "nfs"

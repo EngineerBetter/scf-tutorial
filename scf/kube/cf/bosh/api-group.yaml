@@ -1,0 +1,450 @@
+---
+apiVersion: "v1"
+items:
+- apiVersion: "v1"
+  kind: "Service"
+  metadata:
+    name: "api-group-set"
+    labels:
+      app.kubernetes.io/component: "api-group-set"
+  spec:
+    clusterIP: "None"
+    ports:
+    - name: "api"
+      port: 9022
+      protocol: "TCP"
+      targetPort: 0
+    - name: "api-tls"
+      port: 9023
+      protocol: "TCP"
+      targetPort: 0
+    - name: "api-mutual-tls"
+      port: 9024
+      protocol: "TCP"
+      targetPort: 0
+    - name: "statsd"
+      port: 8125
+      protocol: "TCP"
+      targetPort: 0
+    selector:
+      app.kubernetes.io/component: "api-group"
+- apiVersion: "v1"
+  kind: "Service"
+  metadata:
+    name: "api-set"
+    labels:
+      app.kubernetes.io/component: "api-set"
+  spec:
+    clusterIP: "None"
+    ports:
+    - name: "api"
+      port: 9022
+      protocol: "TCP"
+      targetPort: 0
+    - name: "api-tls"
+      port: 9023
+      protocol: "TCP"
+      targetPort: 0
+    - name: "api-mutual-tls"
+      port: 9024
+      protocol: "TCP"
+      targetPort: 0
+    - name: "statsd"
+      port: 8125
+      protocol: "TCP"
+      targetPort: 0
+    selector:
+      app.kubernetes.io/component: "api-group"
+- apiVersion: "v1"
+  kind: "Service"
+  metadata:
+    name: "api"
+    labels:
+      app.kubernetes.io/component: "api"
+  spec:
+    ports:
+    - name: "api"
+      port: 9022
+      protocol: "TCP"
+      targetPort: 9022
+    - name: "api-tls"
+      port: 9023
+      protocol: "TCP"
+      targetPort: 9023
+    - name: "api-mutual-tls"
+      port: 9024
+      protocol: "TCP"
+      targetPort: 9024
+    - name: "statsd"
+      port: 8125
+      protocol: "TCP"
+      targetPort: 8125
+    selector:
+      app.kubernetes.io/component: "api-group"
+kind: "List"
+---
+# The api-group instance group contains the following jobs:
+#
+# - global-properties: Dummy BOSH job used to host global parameters that are
+#   required to configure SCF
+#
+# - authorize-internal-ca: Install both internal and UAA CA certificates
+#
+# - patch-properties: Dummy BOSH job used to host parameters that are used in
+#   SCF patches for upstream bugs
+#
+# - cloud_controller_ng: The Cloud Controller provides primary Cloud Foundry API
+#   that is by the CF CLI. The Cloud Controller uses a database to keep tables
+#   for organizations, spaces, apps, services, service instances, user roles,
+#   and more. Typically multiple instances of Cloud Controller are load
+#   balanced.
+#
+# - route_registrar: Used for registering routes
+#
+# Also: bpm, statsd_injector, go-buildpack, binary-buildpack, nodejs-buildpack,
+# ruby-buildpack, php-buildpack, python-buildpack, staticfile-buildpack,
+# nginx-buildpack, java-buildpack, and dotnet-core-buildpack
+apiVersion: "apps/v1beta1"
+kind: "StatefulSet"
+metadata:
+  name: "api-group"
+  labels:
+    app.kubernetes.io/component: "api-group"
+spec:
+  podManagementPolicy: "OrderedReady"
+  replicas: 1
+  selector:
+    matchLabels:
+      skiff-role-name: "api-group"
+  serviceName: "api-group-set"
+  template:
+    metadata:
+      annotations: {}
+      labels:
+        app.kubernetes.io/component: "api-group"
+      name: "api-group"
+    spec:
+      containers:
+      - env:
+        - name: "ALLOWED_CORS_DOMAINS"
+          value: "[]"
+        - name: "ALLOW_APP_SSH_ACCESS"
+          value: "true"
+        - name: "APP_SSH_KEY_FINGERPRINT"
+          valueFrom:
+            secretKeyRef:
+              key: "app-ssh-key-fingerprint"
+              name: "secrets"
+        - name: "APP_TOKEN_UPLOAD_GRACE_PERIOD"
+          value: "1200"
+        - name: "AZ_LABEL_NAME"
+          value: ""
+        - name: "BITS_ADMIN_USERS_PASSWORD"
+          valueFrom:
+            secretKeyRef:
+              key: "bits-admin-users-password"
+              name: "secrets"
+        - name: "BLOBSTORE_PASSWORD"
+          valueFrom:
+            secretKeyRef:
+              key: "blobstore-password"
+              name: "secrets"
+        - name: "BROKER_CLIENT_TIMEOUT_SECONDS"
+          value: "70"
+        - name: "BULK_API_PASSWORD"
+          valueFrom:
+            secretKeyRef:
+              key: "bulk-api-password"
+              name: "secrets"
+        - name: "CATS_SUITES"
+          value: ""
+        - name: "CC_DB_CURRENT_KEY_LABEL"
+          value: ""
+        - name: "CC_DB_ENCRYPTION_KEYS"
+          valueFrom:
+            secretKeyRef:
+              key: "cc-db-encryption-keys"
+              name: "secrets"
+        - name: "CC_PUBLIC_TLS_CERT"
+          valueFrom:
+            secretKeyRef:
+              key: "cc-public-tls-cert"
+              name: "secrets"
+        - name: "CC_PUBLIC_TLS_CERT_KEY"
+          valueFrom:
+            secretKeyRef:
+              key: "cc-public-tls-cert-key"
+              name: "secrets"
+        - name: "CC_SERVER_CRT"
+          valueFrom:
+            secretKeyRef:
+              key: "cc-server-crt"
+              name: "secrets"
+        - name: "CC_SERVER_CRT_KEY"
+          valueFrom:
+            secretKeyRef:
+              key: "cc-server-crt-key"
+              name: "secrets"
+        - name: "CDN_URI"
+          value: ""
+        - name: "CLUSTER_BUILD"
+          value: "2.0.2"
+        - name: "CLUSTER_DESCRIPTION"
+          value: "SUSE Cloud Foundry"
+        - name: "CLUSTER_NAME"
+          value: "SCF"
+        - name: "CLUSTER_VERSION"
+          value: "2"
+        - name: "DB_ENCRYPTION_KEY"
+          valueFrom:
+            secretKeyRef:
+              key: "db-encryption-key"
+              name: "secrets"
+        - name: "DEFAULT_APP_DISK_IN_MB"
+          value: "1024"
+        - name: "DEFAULT_APP_MEMORY"
+          value: "1024"
+        - name: "DEFAULT_APP_SSH_ACCESS"
+          value: "true"
+        - name: "DEFAULT_STACK"
+          value: "sle15"
+        - name: "DISABLE_CUSTOM_BUILDPACKS"
+          value: "false"
+        - name: "DOMAIN"
+          value: ""
+        - name: "DROPLET_MAX_STAGED_STORED"
+          value: "5"
+        - name: "ENABLE_SECURITY_EVENT_LOGGING"
+          value: "false"
+        - name: "FEATURE_EIRINI_ENABLED"
+          value: "false"
+        - name: "GARDEN_ROOTFS_DRIVER"
+          value: "btrfs"
+        - name: "INSECURE_DOCKER_REGISTRIES"
+          value: ""
+        - name: "INTERNAL_API_PASSWORD"
+          valueFrom:
+            secretKeyRef:
+              key: "internal-api-password"
+              name: "secrets"
+        - name: "INTERNAL_CA_CERT"
+          valueFrom:
+            secretKeyRef:
+              key: "internal-ca-cert"
+              name: "secrets"
+        - name: "KUBERNETES_CLUSTER_DOMAIN"
+          value: ""
+        - name: "KUBERNETES_NAMESPACE"
+          valueFrom:
+            fieldRef:
+              fieldPath: "metadata.namespace"
+        - name: "KUBE_SIZING_NATS_COUNT"
+          value: "1"
+        - name: "LOG_LEVEL"
+          value: "info"
+        - name: "MAX_APP_DISK_IN_MB"
+          value: "2048"
+        - name: "MAX_HEALTH_CHECK_TIMEOUT"
+          value: "180"
+        - name: "MONIT_PASSWORD"
+          valueFrom:
+            secretKeyRef:
+              key: "monit-password"
+              name: "secrets"
+        - name: "MYSQL_CCDB_ROLE_PASSWORD"
+          valueFrom:
+            secretKeyRef:
+              key: "mysql-ccdb-role-password"
+              name: "secrets"
+        - name: "NATS_PASSWORD"
+          valueFrom:
+            secretKeyRef:
+              key: "nats-password"
+              name: "secrets"
+        - name: "NGINX_MAX_REQUEST_BODY_SIZE"
+          value: "2048"
+        - name: "PZ_LABEL_NAME"
+          value: ""
+        - name: "ROUTER_SERVICES_SECRET"
+          valueFrom:
+            secretKeyRef:
+              key: "router-services-secret"
+              name: "secrets"
+        - name: "SCF_LOG_HOST"
+          value: ""
+        - name: "SCF_LOG_PORT"
+          value: "514"
+        - name: "SCF_LOG_PROTOCOL"
+          value: "tcp"
+        - name: "STAGING_TIMEOUT"
+          value: "900"
+        - name: "STAGING_UPLOAD_PASSWORD"
+          valueFrom:
+            secretKeyRef:
+              key: "staging-upload-password"
+              name: "secrets"
+        - name: "SUPPORT_ADDRESS"
+          value: "support@example.com"
+        - name: "UAA_CA_CERT"
+          valueFrom:
+            secretKeyRef:
+              key: "uaa-ca-cert"
+              name: "secrets"
+        - name: "UAA_CLIENTS_CC_ROUTING_SECRET"
+          valueFrom:
+            secretKeyRef:
+              key: "uaa-clients-cc-routing-secret"
+              name: "secrets"
+        - name: "UAA_CLIENTS_CC_SERVICE_DASHBOARDS_CLIENT_SECRET"
+          valueFrom:
+            secretKeyRef:
+              key: "uaa-clients-cc-service-dashboards-client-secret"
+              name: "secrets"
+        - name: "UAA_CLIENTS_CC_SERVICE_KEY_CLIENT_SECRET"
+          valueFrom:
+            secretKeyRef:
+              key: "uaa-clients-cc-service-key-client-secret"
+              name: "secrets"
+        - name: "UAA_CLIENTS_CLOUD_CONTROLLER_USERNAME_LOOKUP_SECRET"
+          valueFrom:
+            secretKeyRef:
+              key: "uaa-clients-cloud-controller-username-lookup-secret"
+              name: "secrets"
+        - name: "UAA_HOST"
+          value: ""
+        - name: "UAA_PORT"
+          value: "2793"
+        - name: "USE_DIEGO_PRIVILEGED_CONTAINERS"
+          value: "false"
+        - name: "USE_STAGER_PRIVILEGED_CONTAINERS"
+          value: "false"
+        - name: "VCAP_HARD_NPROC"
+          value: "2048"
+        - name: "VCAP_SOFT_NPROC"
+          value: "1024"
+        image: "registry.suse.com/cap/scf-api-group:c4e92661127f706c3afbceeac23bd8e78349d4ab"
+        lifecycle:
+          preStop:
+            exec:
+              command:
+              - "/opt/fissile/pre-stop.sh"
+        livenessProbe: ~
+        name: "api-group"
+        ports:
+        - containerPort: 9022
+          name: "api"
+          protocol: "TCP"
+        - containerPort: 9023
+          name: "api-tls"
+          protocol: "TCP"
+        - containerPort: 9024
+          name: "api-mutual-tls"
+          protocol: "TCP"
+        - containerPort: 8125
+          name: "statsd"
+          protocol: "TCP"
+        readinessProbe:
+          exec:
+            command:
+            - "/opt/fissile/readiness-probe.sh"
+            - "curl --silent --fail --head http://${HOSTNAME}:9022/v2/info"
+        resources:
+          requests:
+            memory: "3800Mi"
+            cpu: "4000m"
+          limits: {}
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: "/opt/fissile/config"
+          name: "deployment-manifest"
+          readOnly: true
+      - env:
+        - name: "AZ_LABEL_NAME"
+          value: ""
+        - name: "CATS_SUITES"
+          value: ""
+        - name: "GARDEN_ROOTFS_DRIVER"
+          value: "btrfs"
+        - name: "INTERNAL_CA_CERT"
+          valueFrom:
+            secretKeyRef:
+              key: "internal-ca-cert"
+              name: "secrets"
+        - name: "KUBERNETES_CLUSTER_DOMAIN"
+          value: ""
+        - name: "KUBERNETES_NAMESPACE"
+          valueFrom:
+            fieldRef:
+              fieldPath: "metadata.namespace"
+        - name: "KUBE_AZ"
+          value: "z1"
+        - name: "LOGGREGATOR_AGENT_CERT"
+          valueFrom:
+            secretKeyRef:
+              key: "loggregator-agent-cert"
+              name: "secrets"
+        - name: "LOGGREGATOR_AGENT_CERT_KEY"
+          valueFrom:
+            secretKeyRef:
+              key: "loggregator-agent-cert-key"
+              name: "secrets"
+        - name: "LOGGREGATOR_FORWARD_CERT"
+          valueFrom:
+            secretKeyRef:
+              key: "loggregator-forward-cert"
+              name: "secrets"
+        - name: "LOGGREGATOR_FORWARD_CERT_KEY"
+          valueFrom:
+            secretKeyRef:
+              key: "loggregator-forward-cert-key"
+              name: "secrets"
+        - name: "MONIT_PASSWORD"
+          valueFrom:
+            secretKeyRef:
+              key: "monit-password"
+              name: "secrets"
+        - name: "PZ_LABEL_NAME"
+          value: ""
+        - name: "SCF_LOG_HOST"
+          value: ""
+        - name: "SCF_LOG_PORT"
+          value: "514"
+        - name: "SCF_LOG_PROTOCOL"
+          value: "tcp"
+        - name: "VCAP_HARD_NPROC"
+          value: "2048"
+        - name: "VCAP_SOFT_NPROC"
+          value: "1024"
+        image: "registry.suse.com/cap/scf-loggregator-agent:39c7e06aaa613d8d7ae5ac05dc952c5d1cf1be17"
+        lifecycle:
+          preStop:
+            exec:
+              command:
+              - "/opt/fissile/pre-stop.sh"
+        livenessProbe: ~
+        name: "loggregator-agent"
+        ports: ~
+        readinessProbe: ~
+        resources:
+          requests: {}
+          limits: {}
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: "/opt/fissile/config"
+          name: "deployment-manifest"
+          readOnly: true
+      dnsPolicy: "ClusterFirst"
+      imagePullSecrets:
+      - name: "registry-credentials"
+      restartPolicy: "Always"
+      serviceAccountName: "default-privileged"
+      terminationGracePeriodSeconds: 600
+      volumes:
+      - name: "deployment-manifest"
+        secret:
+          secretName: "deployment-manifest"
+          items:
+          - key: "deployment-manifest"
+            path: "deployment-manifest.yml"
