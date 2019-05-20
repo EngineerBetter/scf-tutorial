@@ -185,7 +185,7 @@ jobs:
           unzip scf-release/scf*.zip -d scf-release-unzipped
   - put: helm
     params:
-      chart: scf-release-unzipped/scf/helm/uaa/
+      chart: scf-release-unzipped/helm/uaa/
       release: uaa
       namespace: uaa
       values: scf-tutorial/scf/scf-config-values.yaml
