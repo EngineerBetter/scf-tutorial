@@ -3,5 +3,5 @@ resource "google_compute_address" "uaa_ip" {
 }
 
 output "uaa_ip" {
-  value = "${google_compute_address.uaa_ip}"
+  value = "${google_compute_address.uaa_ip.address}"
 }
