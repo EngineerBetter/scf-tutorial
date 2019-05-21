@@ -116,6 +116,20 @@ jobs:
       terraform_source: scf-tutorial/ci/tf/gke
       env_name: default
 
+- name: teardown-gke
+  plan:
+  - get: scf-tutorial
+    passed: [deploy-gke]
+  - get: gke-tf
+    passed: [deploy-gke]
+  - put: gke-tf
+    params:
+      action: destroy
+      terraform_source: scf-tutorial/ci/tf/gke
+      env_name: default
+    get_params:
+      action: destroy
+
 - name: extract-kubeconfig
   plan:
   - get: scf-tutorial
