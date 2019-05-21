@@ -74,6 +74,7 @@ resources:
 
 jobs:
 - name: setup-project
+  serial: true
   plan:
   - get: concourse-gcp-tf-bootstrap
   - get: scf-tutorial
@@ -95,6 +96,7 @@ jobs:
       file: tfstate-out/terraform.tfstate
 
 - name: teardown-project
+  serial: true
   plan:
   - get: concourse-gcp-tf-bootstrap
     passed: [setup-project]
@@ -107,6 +109,7 @@ jobs:
     params: *project-ops-params
 
 - name: deploy-gke
+  serial: true
   plan:
   - get: scf-tutorial
     trigger: true
@@ -117,6 +120,7 @@ jobs:
       env_name: default
 
 - name: teardown-gke
+  serial: true
   plan:
   - get: scf-tutorial
     passed: [deploy-gke]
@@ -131,6 +135,7 @@ jobs:
       action: destroy
 
 - name: extract-kubeconfig
+  serial: true
   plan:
   - get: scf-tutorial
     passed: [deploy-gke]
@@ -167,6 +172,7 @@ jobs:
 
 
 - name: deploy-scf
+  serial: true
   plan:
   - get: scf-tutorial
     passed: [extract-kubeconfig]
