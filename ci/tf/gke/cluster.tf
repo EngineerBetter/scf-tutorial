@@ -22,8 +22,9 @@ resource "google_container_cluster" "scf-cluster" {
     "google_project_service.container",
   ]
 
-  name               = "scf-cluster"
-  initial_node_count = 1
+  name                     = "scf-cluster"
+  remove_default_node_pool = true
+  initial_node_count       = 1
 
   master_auth {
     username = "${random_id.username.hex}"
@@ -32,6 +33,26 @@ resource "google_container_cluster" "scf-cluster" {
     client_certificate_config {
       issue_client_certificate = false
     }
+  }
+}
+
+resource "google_container_node_pool" "primary_preemptible_nodes" {
+  name       = "scf-nodes"
+  cluster    = "${google_container_cluster.scf-cluster.name}"
+  node_count = 1
+
+  node_config {
+    preemptible  = true
+    machine_type = "n1-standard-4"
+
+    metadata {
+      disable-legacy-endpoints = "true"
+    }
+
+    oauth_scopes = [
+      "https://www.googleapis.com/auth/logging.write",
+      "https://www.googleapis.com/auth/monitoring",
+    ]
   }
 }
 
