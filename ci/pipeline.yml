@@ -192,4 +192,40 @@ jobs:
       override_values:
       - key: kube.storage_class.persistent
         value: standard
+      wait_until_ready: 480
+      kubeconfig_path: kubeconfig/kube.config
+  - task: write-ca-cert
+    config:
+      image_resource:
+        type: docker-image
+        source:
+          repository: engineerbetter/pcf-ops
+          tag: latest
+      inputs:
+      - name: scf-release-unzipped
+      - name: kubeconfig
+      outputs:
+      - name: ca_cert
+      platform: linux
+      run:
+        path: bash
+        args:
+        - -exc
+        - |
+          export KUBECONFIG=kubeconfig/kube.config
+          kubectl cluster-info
+          kubectl get pods --namespace uaa -o jsonpath='{.items[?(.metadata.name=="uaa-0")].spec.containers[?(.name=="uaa")].env[?(.name=="INTERNAL_CA_CERT")].valueFrom.secretKeyRef.name}'
+          SECRET=$(kubectl get pods --namespace uaa -o jsonpath='{.items[?(.metadata.name=="uaa-0")].spec.containers[?(.name=="uaa")].env[?(.name=="INTERNAL_CA_CERT")].valueFrom.secretKeyRef.name}')
+          kubectl get secret $SECRET --namespace uaa -o jsonpath="{.data['internal-ca-cert']}" | base64 --decode - > ca_cert/ca_cert
+          cat ca_cert/ca_cert
+  - put: helm
+    params:
+      chart: scf-release-unzipped/helm/cf/
+      release: cf
+      namespace: cf
+      values: scf-tutorial/scf/scf-config-values.yaml
+      override_values:
+      - key: secrets.UAA_CA_CERT
+        path: ca_cert/ca_cert
+      wait_until_ready: 900
       kubeconfig_path: kubeconfig/kube.config
