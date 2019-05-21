@@ -203,15 +203,26 @@ jobs:
         - -exc
         - |
           unzip scf-release/scf*.zip -d scf-release-unzipped
+  - task: extract-uaa-ip
+    file: scf-tutorial/ci/tasks/tf-metadata-to-file.yml
+    input_mapping:
+      terraform: gke-tf
+    params:
+      METADATA_KEY: uaa_ip
+      OUTPUT_FILE: ip
   - put: helm
     params:
-      chart: scf-release-unzipped/helm/uaa/
+      chart: scf-tutorial/scf/helm/uaa/
       release: uaa
       namespace: uaa
       values: scf-tutorial/scf/scf-config-values.yaml
       override_values:
       - key: kube.storage_class.persistent
         value: standard
+      - key: services.loadbalanced
+        value: true
+      - key: services.uaa_load_balancer_ip
+        path: tf-metadata-to-file/uaa_ip
       wait_until_ready: 480
       kubeconfig_path: kubeconfig/kube.config
   - task: write-ca-cert
