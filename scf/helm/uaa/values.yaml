@@ -10,11 +10,11 @@ kube:
     nproc:
       hard: ""
       soft: ""
-  organization: "splatform"
+  organization: "cap"
   psp:
     nonprivileged: ~
   registry:
-    hostname: "staging.registry.howdoi.website"
+    hostname: "registry.suse.com"
     username: ""
     password: ""
 
