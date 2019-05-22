@@ -4,6 +4,6 @@ resource "google_dns_managed_zone" "scf" {
   description = "DNS zone for SCF tutorial"
 }
 
-output {
+output "scf_name_servers" {
   value = "${google_dns_managed_zone.scf.name_servers}"
 }
