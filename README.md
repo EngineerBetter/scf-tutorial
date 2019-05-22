@@ -1,5 +1,7 @@
 # scf-tutorial
 
+[![Open in Cloud Shell](https://gstatic.com/cloudssh/images/open-btn.png)](https://console.cloud.google.com/cloudshell/open?git_repo=https://github.com/EngineerBetter/scf-tutorial&tutorial=tutorial.md)
+
 ```terminal
 $ fly -t ebci sp -p scf-tutorial -c ci/pipeline.yml -l ci/instances/default.yml
 ```
