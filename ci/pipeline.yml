@@ -51,15 +51,26 @@ resources:
   source:
     backend_type: gcs
     backend_config:
-      bucket: ((project_id))
       prefix: gke
-      region: ((region))
-      credentials: ((gcp_credentials_json))
+      <<: &tf-backend-config
+        bucket: ((project_id))
+        region: ((region))
+        credentials: ((gcp_credentials_json))
     env:
       GOOGLE_CLOUD_KEYFILE_JSON: ((gcp_credentials_json))
       GOOGLE_PROJECT: ((project_id))
       GOOGLE_REGION: ((region))
       GOOGLE_ZONE: ((zone))
+- name: route53-tf
+  type: terraform
+  source:
+    backend_type: gcs
+    backend_config:
+      prefix: route53
+    <<: *tf-backend-config
+    env:
+      AWS_ACCESS_KEY_ID: ((concourse_ci_s3_access_key))
+      AWS_SECRET_ACCESS_KEY: ((concourse_ci_s3_secret_key))
 - name: helm
   type: helm
   source:
@@ -136,6 +147,22 @@ jobs:
       env_name: default
     get_params:
       action: destroy
+
+- name: route53
+  serial: true
+  plan:
+  - get: scf-tutorial
+    trigger: true
+    passed: [deploy-gke]
+  - get: gke-tf
+    passed: [deploy-gke]
+    trigger: true
+  - put: route53-tf
+    params:
+      terraform_source: scf-tutorial/ci/tf/aws-dns
+      env_name: default
+      var_files:
+      - gke-tf/metadata
 
 - name: extract-kubeconfig
   serial: true
