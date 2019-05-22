@@ -2,7 +2,7 @@
 
 Foo
 
-## h2
+## h2-1
 
 Bar
 
@@ -13,3 +13,7 @@ Baz
 ### h3-b
 
 Qux
+
+## h2-2
+
+Another section.
