@@ -1,4 +1,4 @@
-variable "name_servers" {
+variable "scf_name_servers" {
   type = "list"
 }
 
