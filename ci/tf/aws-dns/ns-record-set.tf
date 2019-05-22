@@ -7,5 +7,5 @@ resource "aws_route53_record" "ns" {
   name    = "scf.engineerbetter.com"
   type    = "NS"
   ttl     = "300"
-  records = ${var.name_servers}
+  records = "${var.name_servers}"
 }
