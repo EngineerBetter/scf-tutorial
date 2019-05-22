@@ -306,7 +306,7 @@ jobs:
       OUTPUT_FILE: router_ip
   - put: helm
     params:
-      chart: scf-release-unzipped/helm/cf/
+      chart: scf-tutorial/scf/helm/cf/
       release: cf
       namespace: cf
       values: scf-tutorial/scf/scf-config-values.yaml
