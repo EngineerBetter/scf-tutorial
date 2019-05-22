@@ -43,6 +43,9 @@ resources:
   source:
     uri: https://github.com/EngineerBetter/scf-tutorial.git
     branch: master
+    ignore_paths:
+    - README.md
+    - tutorial.md
 - name: gke-tf
   type: terraform
   source:
