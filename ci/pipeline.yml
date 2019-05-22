@@ -319,6 +319,8 @@ jobs:
         value: uaa.scf.engineerbetter.com
       - key: env.UAA_PORT
         value: 2793
+      - key: services.loadbalanced
+        value: true
       - key: services.ssh_load_balancer_ip
         path: ssh_ip/ssh_ip
       - key: services.router_load_balancer_ip
