@@ -206,13 +206,15 @@ jobs:
         - -exc
         - |
           unzip scf-release/scf*.zip -d scf-release-unzipped
+  - get: gke-tf
+    passed: [deploy-gke]
   - task: extract-uaa-ip
     file: scf-tutorial/ci/tasks/tf-metadata-to-file.yml
     input_mapping:
       terraform: gke-tf
     params:
       METADATA_KEY: uaa_ip
-      OUTPUT_FILE: ip
+      OUTPUT_FILE: uaa_ip
   - put: helm
     params:
       chart: scf-tutorial/scf/helm/uaa/
