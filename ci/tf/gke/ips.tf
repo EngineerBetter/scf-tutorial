@@ -21,7 +21,3 @@ resource "google_compute_address" "router_ip" {
 output "router_ip" {
   value = "${google_compute_address.router_ip.address}"
 }
-
-output "uaa_ip" {
-  value = "${google_compute_address.uaa_ip.address}"
-}
