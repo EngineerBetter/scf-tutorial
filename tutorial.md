@@ -2,9 +2,11 @@
 
 Foo
 
-## h2-1
+## Running `cf`
 
-Bar
+```terminal
+cf login -a https://api.run.pivotal.io
+```
 
 ### h3-a
 
