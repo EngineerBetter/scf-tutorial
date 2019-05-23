@@ -1,3 +1,6 @@
+enable:
+    eirini: true
+
 env:
     # Domain for SCF. DNS for *.DOMAIN must point to a kube node's (not master)
     # external ip address.
