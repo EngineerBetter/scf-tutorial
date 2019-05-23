@@ -213,7 +213,7 @@ jobs:
     trigger: true
   - put: kubernetes
     params:
-      kubectl: apply -f scf-tutorial/k8s/tiller-service-account.yaml
+      kubectl: apply -f scf-tutorial/k8s/
       kubeconfig_file: kubeconfig/kube.config
   - get: scf-release
   - task: unzip-scf-release
