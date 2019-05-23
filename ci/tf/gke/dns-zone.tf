@@ -28,7 +28,7 @@ resource "google_dns_record_set" "uaa" {
 }
 
 resource "google_dns_record_set" "scf_uaa_zone" {
-  name = "scf.uaa.${google_dns_managed_zone.scf.dns_name}"
+  name = "cf.uaa.${google_dns_managed_zone.scf.dns_name}"
   type = "A"
   ttl  = 5
 
