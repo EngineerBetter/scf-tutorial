@@ -41,11 +41,23 @@ resources:
 - name: scf-tutorial
   type: git
   source:
-    uri: https://github.com/EngineerBetter/scf-tutorial.git
-    branch: master
+    <<: &scf-tutorial-source
+      uri: https://github.com/EngineerBetter/scf-tutorial.git
+      branch: master
     ignore_paths:
     - README.md
     - tutorial.md
+- name: scf-tutorial-dockerfile
+  type: git
+  source:
+    <<: *scf-tutorial-source
+    paths: [docker/Dockerfile]
+- name: scf-tutorial-image
+  type: docker-image
+  source:
+    username: ((dockerhub_user))
+    password: ((dockerhub_password))
+    repository: engineerbetter/scf-tutorial
 - name: gke-tf
   type: terraform
   source:
@@ -122,6 +134,14 @@ jobs:
     input_mapping:
       gcp-bootstrap: concourse-gcp-tf-bootstrap
     params: *project-ops-params
+
+- name: build-image
+  plan:
+  - get: scf-tutorial-dockerfile
+    trigger: true
+  - put: scf-tutorial-image
+    params:
+      build: scf-tutorial-dockerfile/docker
 
 - name: deploy-gke
   serial: true
