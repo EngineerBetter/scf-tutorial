@@ -91,6 +91,9 @@ resources:
     helm_init_wait: true
     tiller_service_account: helm
     tracing_enabled: true
+    repos:
+    - name: minibroker
+      url: https://minibroker.blob.core.windows.net/charts
 - name: scf-release
   type: github-release
   source:
@@ -426,5 +429,26 @@ jobs:
         path: ssh_ip/ssh_ip
       - key: services.router_load_balancer_ip
         path: router_ip/router_ip
+      wait_until_ready: 900
+      kubeconfig_path: kubeconfig/kube.config
+
+- name: deploy-minibroker
+  plan:
+  - get: scf-tutorial
+    passed: [deploy-scf]
+    trigger: true
+  - get: kubeconfig
+    passed: [extract-kubeconfig]
+    trigger: true
+  - put: helm
+    params:
+      chart: minibroker/minibroker
+      release: minibroker
+      namespace: minibroker
+      override_values:
+      - key: deployServiceCatalog
+        value: "false"
+      - key: defaultNamespace
+        value: minibroker
       wait_until_ready: 900
       kubeconfig_path: kubeconfig/kube.config
