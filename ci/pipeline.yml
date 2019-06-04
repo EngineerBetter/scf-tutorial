@@ -325,7 +325,7 @@ jobs:
   serial: true
   plan:
   - get: scf-tutorial
-    passed: [extract-kubeconfig]
+    passed: [extract-kubeconfig, route53]
     trigger: true
   - get: kubeconfig
     passed: [extract-kubeconfig]
