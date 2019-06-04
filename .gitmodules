@@ -1,0 +1,3 @@
+[submodule "cf-mongo-sample"]
+	path = cf-mongo-sample
+	url = https://github.com/hsiliev/cf-mongo-sample.git
