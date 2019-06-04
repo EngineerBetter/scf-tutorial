@@ -108,8 +108,7 @@ jobs:
     trigger: true
   - task: bootstrap-terraform
     file: concourse-gcp-tf-bootstrap/tasks/bootstrap.yml
-    input_mapping:
-      gcp-bootstrap: concourse-gcp-tf-bootstrap
+    input_mapping: { gcp-bootstrap: concourse-gcp-tf-bootstrap }
     params: &project-ops-params
       BILLING_ACCOUNT_ID: ((billing_account_id))
       BUCKET_LOCATION: ((region))
@@ -131,8 +130,7 @@ jobs:
     passed: [setup-project]
   - task: bootstrap-terraform
     file: concourse-gcp-tf-bootstrap/tasks/teardown.yml
-    input_mapping:
-      gcp-bootstrap: concourse-gcp-tf-bootstrap
+    input_mapping: { gcp-bootstrap: concourse-gcp-tf-bootstrap }
     params: *project-ops-params
 
 - name: deploy-gke
@@ -188,8 +186,7 @@ jobs:
     passed: [deploy-gke]
   - task: extract-kubeconfig
     file: scf-tutorial/ci/tasks/tf-metadata-to-file.yml
-    input_mapping:
-      terraform: gke-tf
+    input_mapping: { terraform: gke-tf }
     params:
       METADATA_KEY: kubeconfig_content
       OUTPUT_FILE: kube.config
@@ -200,8 +197,7 @@ jobs:
         source:
           repository: engineerbetter/pcf-ops
           tag: latest
-      inputs:
-      - name: tf-metadata-to-file
+      inputs: [{ name: tf-metadata-to-file }]
       platform: linux
       run:
         path: bash
@@ -236,10 +232,8 @@ jobs:
   - task: write-student-kubeconfig
     config:
       image_resource: *pcf-ops
-      inputs:
-      - name: kubeconfig
-      outputs:
-      - name: student-kubeconfig
+      inputs: [{ name: kubeconfig }]
+      outputs: [{ name: student-kubeconfig }]
       platform: linux
       run:
         path: bash
@@ -282,8 +276,7 @@ jobs:
       inputs:
       - name: scf-tutorial
       - name: student-kubeconfig
-      outputs:
-      - name: docker-build-dir
+      outputs: [{ name: docker-build-dir }]
       platform: linux
       run:
         path: bash
@@ -325,10 +318,8 @@ jobs:
   - task: unzip-scf-release
     config:
       image_resource: *pcf-ops
-      inputs:
-      - name: scf-release
-      outputs:
-      - name: scf-release-unzipped
+      inputs: [{ name: scf-release }]
+      outputs: [{ name: scf-release-unzipped }]
       platform: linux
       run:
         path: bash
@@ -340,10 +331,8 @@ jobs:
     passed: [deploy-gke]
   - task: extract-uaa-ip
     file: scf-tutorial/ci/tasks/tf-metadata-to-file.yml
-    input_mapping:
-      terraform: gke-tf
-    output_mapping:
-      tf-metadata-to-file: uaa_ip
+    input_mapping: { terraform: gke-tf }
+    output_mapping: { tf-metadata-to-file: uaa_ip }
     params:
       METADATA_KEY: uaa_ip
       OUTPUT_FILE: uaa_ip
@@ -370,8 +359,7 @@ jobs:
       inputs:
       - name: scf-release-unzipped
       - name: kubeconfig
-      outputs:
-      - name: ca_cert
+      outputs: [{ name: ca_cert }]
       platform: linux
       run:
         path: bash
@@ -386,19 +374,15 @@ jobs:
           cat ca_cert/ca_cert
   - task: extract-ssh-ip
     file: scf-tutorial/ci/tasks/tf-metadata-to-file.yml
-    input_mapping:
-      terraform: gke-tf
-    output_mapping:
-      tf-metadata-to-file: ssh_ip
+    input_mapping: { terraform: gke-tf }
+    output_mapping: { tf-metadata-to-file: ssh_ip }
     params:
       METADATA_KEY: ssh_ip
       OUTPUT_FILE: ssh_ip
   - task: extract-router-ip
     file: scf-tutorial/ci/tasks/tf-metadata-to-file.yml
-    input_mapping:
-      terraform: gke-tf
-    output_mapping:
-      tf-metadata-to-file: router_ip
+    input_mapping: { terraform: gke-tf }
+    output_mapping: { tf-metadata-to-file: router_ip }
     params:
       METADATA_KEY: router_ip
       OUTPUT_FILE: router_ip
