@@ -52,6 +52,7 @@ resources:
     ignore_paths:
     - README.md
     - tutorial.md
+    - docker/Dockerfile
 - name: scf-tutorial-dockerfile
   type: git
   source:
