@@ -195,7 +195,7 @@ jobs:
       OUTPUT_FILE: kube.config
   - task: test-kubeconfig
     config:
-      image_resource:
+      image_resource: &pcf-ops
         type: docker-image
         source:
           repository: engineerbetter/pcf-ops
@@ -235,11 +235,7 @@ jobs:
     trigger: true
   - task: write-student-kubeconfig
     config:
-      image_resource:
-        type: docker-image
-        source:
-          repository: engineerbetter/pcf-ops
-          tag: latest
+      image_resource: *pcf-ops
       inputs:
       - name: kubeconfig
       outputs:
@@ -282,11 +278,7 @@ jobs:
           echo "student kubeconfig written to file \"$KUBECONFIG\""
   - task: merge-directories
     config:
-      image_resource:
-        type: docker-image
-        source:
-          repository: engineerbetter/pcf-ops
-          tag: latest
+      image_resource: *pcf-ops
       inputs:
       - name: scf-tutorial
       - name: student-kubeconfig
@@ -305,11 +297,7 @@ jobs:
       build: docker-build-dir/docker
   - task: make-bucket-public
     config:
-      image_resource:
-        type: docker-image
-        source:
-          repository: engineerbetter/pcf-ops
-          tag: latest
+      image_resource: *pcf-ops
       platform: linux
       run:
         path: bash
@@ -336,11 +324,7 @@ jobs:
   - get: scf-release
   - task: unzip-scf-release
     config:
-      image_resource:
-        type: docker-image
-        source:
-          repository: engineerbetter/pcf-ops
-          tag: latest
+      image_resource: *pcf-ops
       inputs:
       - name: scf-release
       outputs:
@@ -382,11 +366,7 @@ jobs:
       kubeconfig_path: kubeconfig/kube.config
   - task: write-ca-cert
     config:
-      image_resource:
-        type: docker-image
-        source:
-          repository: engineerbetter/pcf-ops
-          tag: latest
+      image_resource: *pcf-ops
       inputs:
       - name: scf-release-unzipped
       - name: kubeconfig
