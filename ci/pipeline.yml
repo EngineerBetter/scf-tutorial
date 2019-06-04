@@ -274,7 +274,7 @@ jobs:
     config:
       image_resource: *pcf-ops
       inputs:
-      - name: scf-tutorial
+      - name: scf-tutorial-dockerfile
       - name: student-kubeconfig
       outputs: [{ name: docker-build-dir }]
       platform: linux
@@ -287,7 +287,7 @@ jobs:
           cp student-kubeconfig/kube.config docker-build-dir/
   - put: scf-tutorial-image
     params:
-      build: docker-build-dir/docker
+      build: docker-build-dir
   - task: make-bucket-public
     config:
       image_resource: *pcf-ops
