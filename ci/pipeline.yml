@@ -170,8 +170,6 @@ jobs:
     passed: [deploy-gke]
   - get: gke-tf
     passed: [deploy-gke]
-  - get: route53-tf
-    passed: [route53]
   - put: route53-tf
     params:
       action: destroy
