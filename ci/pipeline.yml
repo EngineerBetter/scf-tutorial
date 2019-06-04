@@ -144,21 +144,6 @@ jobs:
       terraform_source: scf-tutorial/ci/tf/gke
       env_name: default
 
-- name: teardown-gke
-  serial: true
-  plan:
-  - get: scf-tutorial
-    passed: [deploy-gke]
-  - get: gke-tf
-    passed: [deploy-gke]
-  - put: gke-tf
-    params:
-      action: destroy
-      terraform_source: scf-tutorial/ci/tf/gke
-      env_name: default
-    get_params:
-      action: destroy
-
 - name: route53
   serial: true
   plan:
@@ -174,6 +159,40 @@ jobs:
       env_name: default
       var_files:
       - gke-tf/metadata
+
+- name: teardown-route53
+  serial: true
+  plan:
+  - get: scf-tutorial
+    passed: [deploy-gke]
+  - get: gke-tf
+    passed: [deploy-gke]
+  - get: route53-tf
+    passed: [route53]
+  - put: route53-tf
+    params:
+      action: destroy
+      terraform_source: scf-tutorial/ci/tf/aws-dns
+      env_name: default
+      var_files:
+      - gke-tf/metadata
+    get_params:
+      action: destroy
+
+- name: teardown-gke
+  serial: true
+  plan:
+  - get: scf-tutorial
+    passed: [teardown-route53]
+  - get: gke-tf
+    passed: [teardown-route53]
+  - put: gke-tf
+    params:
+      action: destroy
+      terraform_source: scf-tutorial/ci/tf/gke
+      env_name: default
+    get_params:
+      action: destroy
 
 - name: extract-kubeconfig
   serial: true
