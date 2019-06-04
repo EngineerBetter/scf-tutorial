@@ -433,7 +433,7 @@ jobs:
 - name: deploy-minibroker
   plan:
   - get: scf-tutorial
-    passed: [deploy-scf]
+    passed: [extract-kubeconfig]
     trigger: true
   - get: kubeconfig
     passed: [extract-kubeconfig]
