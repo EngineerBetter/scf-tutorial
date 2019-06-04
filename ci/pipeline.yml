@@ -19,6 +19,11 @@ resource_types:
   source:
     repository: zlabjp/kubernetes-resource
     tag: 1.14
+- name: registry-image
+  type: docker-image
+  source:
+    repository: concourse/registry-image-resource
+    tag: 0.6.0
 
 resources:
 - name: tfstate
@@ -52,8 +57,13 @@ resources:
   source:
     <<: *scf-tutorial-source
     paths: [docker/Dockerfile]
+- name: builder-task
+  type: git
+  source:
+    uri: https://github.com/concourse/builder-task.git
+    branch: master
 - name: scf-tutorial-image
-  type: docker-image
+  type: registry-image
   source:
     username: _json_key
     password: ((gcp_credentials_json))
@@ -305,9 +315,26 @@ jobs:
         - |
           cp scf-tutorial-dockerfile/docker/Dockerfile docker-build-dir/
           cp student-kubeconfig/kube.config docker-build-dir/
+  - get: builder-task
+  - task: build-image
+    privileged: true
+    config:
+      platform: linux
+      image_resource:
+        type: registry-image
+        source: {repository: concourse/builder-task}
+      inputs:
+      - name: docker-build-dir
+      - name: builder-task
+      outputs: [{ name: image }]
+      caches: [{ path: cache }]
+      run: {path: builder-task/build}
+      params:
+        CONTEXT: docker-build-dir
+        REPOSITORY: eu.gcr.io/((project_id))/scf-tutorial
   - put: scf-tutorial-image
     params:
-      build: docker-build-dir
+      image: image/image.tar
   - task: make-bucket-public
     config:
       image_resource: *pcf-ops
