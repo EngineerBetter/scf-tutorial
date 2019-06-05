@@ -52,7 +52,7 @@ You should see something similar to:
 cf version 6.44.1+c3b20bfbe.2019-05-08
 ```
 
-### Logging into Cloud Foundry
+## Logging into Cloud Foundry
 
 Use the following command to log into the Cloud Foundry running on our Kubernetes cluster:
 
@@ -65,40 +65,37 @@ When prompted, enter:
 * Email: `student${STUDENT_NUMBER}@engineerbetter.com` _eg student117@engineerbetter.com_
 * Password: `student-${STUDENT_NUMBER}` _eg student-117_
 
+### Checking Your Work
+
+You should see something like this, but with _your_ student number:
+
+```bash
+API endpoint:   https://api.scf.engineerbetter.com (API version: 2.134.0)
+User:           student117@engineerbetter.com
+Org:            students
+Space:          student117
+```
+
+---
+
 ### Targeting Orgs and Spaces
 
 Kubernetes has logical divisions called Namespaces. To differentiate _its_ logical divisions, Cloud Foundry is split into Organisations and Spaces. Apps live in spaces, and spaces live in orgs.
 
-Are you already targeting an org and space? If so, how do you think Cloud Foundry knew which one you should target?
+You are already targeting an org and space.
 
-Confirm that you're targeting an org and a space:
-
-```bash
-cf target
-```
-
-#### Checking Your Work
-
-You should see something like the following, featuring _your_ student number:
-
-```bash
-api endpoint:   https://api.scf.engineerbetter.com
-api version:    2.136.0
-user:           student117@engineerbetter.com
-org:            students
-space:          student117
-```
+How do you think Cloud Foundry knew which one you would like to target?
 
 ## The App
 
-There's a very simple NodeJS app in the `cf-mongo-example` directory.
+There's a very simple NodeJS app in the `cf-mongo-sample` directory.
 
-You can read the app code using the Google Cloud Shell editor, but we won't be making any changes to it.
+If you are curious, you can read the app code using the Google Cloud Shell editor. We won't be making any changes to it.
 
-Change to the `cf-mongo-example` directory, and list the files in there:
+Change to the `cf-mongo-sample` directory, and list the files in there:
 
 ```bash
-cd cf-mongo-example
+cd cf-mongo-sample
 ls -la
 ```
 
@@ -112,7 +109,9 @@ Let's get our app running, in production, with one simple command:
 cf push
 ```
 
-You'll see a whole stream of logs scroll past as Cloud Foundry does a _lot_ of work for you, including:
+You'll see a whole stream of logs scroll past over the course of **one or more minutes**.
+
+Cloud Foundry does a _lot_ of work for you, including:
 
 * **Building a container image** with whatever dependencies your app needs - like NodeJS!
 * **Scheduling StatefulSets** in Kubernetes to make our app run
@@ -123,12 +122,39 @@ You'll see a whole stream of logs scroll past as Cloud Foundry does a _lot_ of w
 When your app is successfully pushed, you should see a table describing your running application:
 
 ```bash
-TODO
+name:                mongo-sample
+requested state:     started
+isolation segment:   placeholder
+routes:              mongo-sample-quick-alligator.scf.engineerbetter.com
+last uploaded:       Wed 05 Jun 23:15:02 CEST 2019
+stack:               sle15
+buildpacks:          nodejs
+
+type:            web
+instances:       1/1
+memory usage:    1024M
+start command:   node index.js
+     state     since                  cpu    memory    disk      details
+#0   running   2019-06-05T21:15:05Z   0.0%   0 of 1G   0 of 1G
 ```
 
-Now, let's copy the URL from that output and visit it in a browser.
+---
 
-You should see a simple line of text, saying that there's a `null` MongoDB instance. In the next task, we'll fix that.
+### Accessing the App
+
+Now, let's access our app.
+
+Copy the URL from the `routes` output and visit it in a browser.
+
+### Checking Your Work
+
+You should see a simple line of text, saying that there's a `null` MongoDB instance.
+
+```
+Hello with service null
+```
+
+In the next task, we'll fix this by creating a MongoDB instance and binding it to the app.
 
 ## Provision a MongoDB Instance
 
@@ -149,7 +175,15 @@ cf marketplace
 You should see a single service with a single plan available. It's almost as if someone set up this Cloud Foundry _just_ for today's tutorial!
 
 ```bash
+OK
+
+service   plans   description              broker
+mongodb   4-0-3   Helm Chart for mongodb   minibroker
+
+TIP: Use 'cf marketplace -s SERVICE' to view descriptions of individual plans of a given service.
 ```
+
+---
 
 ### Create a Service Instance
 
@@ -164,8 +198,11 @@ cf create-service mongodb 4-0-3 mymongo
 You should see the following:
 
 ```bash
-TODO
+Creating service instance mymongo in org students / space student1 as student117@engineerbetter.com...
+OK
 ```
+
+---
 
 ### Binding the App to the MongoDB Instance
 
@@ -175,20 +212,27 @@ The app will need credentials to be generated for it, and will need to be able t
 
 Use `cf bind-service --help` to figure out how to bind your app to the MongoDB instance called `mymongo` that you created previously.
 
+_Hint: you **don't need any optional arguments**._
+
 ### Checking Your Work
 
-Run `cf services`, and you should see the following:
+Run `cf services`, and you should `mongo-sample` appear in the `bound apps` section:
 
 ```bash
+Getting services in org students / space student117 as student117@engineerbetter.com...
 
+name      service   plan    bound apps     last operation     broker       upgrade available
+mymongo   mongodb   4-0-3   mongo-sample   create succeeded   minibroker
 ```
+
+## Writing and Reading Data
 
 Cloud Foundry provides credentials for the MongoDB instance to the app via environment variables.
 
 Let's restart the app now the binding has been made:
 
 ```bash
-cf restart
+cf restart mongo-sample
 ```
 
 ### Checking Your Work
@@ -196,6 +240,41 @@ cf restart
 If everything has been done correctly, when you visit your app you should see some details of the MongoDB instance it has connected to on the app's home page:
 
 ```
+Hello with service mongodb://root:5fs2BoJBFF@rolling-turtle-mongodb.minibroker.svc.cluster.local:27017
+```
+
+---
+
+### REST API
+
+Let's _prove_ that our app can talk to MongoDB by posting some data to the app, and then reading it back.
+
+Run the following command, substituting ${APP_URL} for the URL of _your_ app.
+
+```bash
+curl -i -k -X POST -d '{"num": 1}' https://${APP_URL}/items/ein
+```
+
+### Checking Your Work
+
+Get the data back out with the following command:
+
+```bash
+curl -i -k https://${APP_URL}/items/ein
+```
+
+You'll get back the data you posted in, along with the ID that MongoDB assigned it based on the URL used:
+
+```bash
+HTTP/1.1 200 OK
+Content-Length: 21
+Content-Type: application/json; charset=utf-8
+Date: Wed, 05 Jun 2019 21:33:36 GMT
+Etag: W/"15-qhLrBlTLDJEI3jsD4fKE+ILR0CY"
+X-Powered-By: Express
+X-Vcap-Request-Id: 6b51ea25-0bd6-4c03-72e7-57b29829132e
+
+{"_id":"ein","num":1}
 ```
 
 ## Kubernetes - Under The Hood
@@ -215,9 +294,23 @@ kubectl get namespaces
 You should see a list similar to this:
 
 ```
+NAME          STATUS   AGE
+cf            Active   4h42m
+default       Active   5h33m
+eirini        Active   5h20m
+kube-public   Active   5h33m
+kube-system   Active   5h33m
+minibroker    Active   5h20m
+uaa           Active   5h20m
 ```
 
-The `cf` namespace is where all the Cloud Foundry components run. The `eirini` namespace is named after a component of Cloud Foundry that interfaces with Kubernetes, and contains all of the apps we have scheduled.
+---
+
+### Where Are Our Apps?
+
+The `cf` namespace is where all the Cloud Foundry components run.
+
+The `eirini` namespace is named after a component of Cloud Foundry that interfaces with Kubernetes, and contains all of the apps we have scheduled.
 
 Let's take a look at the pods that make up all of the apps the class has deployed:
 
@@ -225,18 +318,26 @@ Let's take a look at the pods that make up all of the apps the class has deploye
 kubectl get pods -n eirini
 ```
 
+### Checking Your Work
+
 You should see a list similar to this:
 
 ```
-TODO
+NAME                              READY   STATUS    RESTARTS   AGE
+mongo-sample-student117-7d8qv-0   1/1     Running   0          8m50s0s
+mongo-sample-student343-8kj9t-0   1/1     Running   0          20m
+...
 ```
 
 Notice how **we can see all users' apps**, and not just those in our org and space. Now we're accessing Kubernetes directly, we're viewing things 'below' the Cloud Foundry tenancy abstraction.
 
+---
+
+### Where Are Our MongoDB Instances?
+
 The `minibroker` namespace contains the **Minibroker service broker**, and all the MongoDB service instances that it created.
 
-Take a look at the pods in the `minibroker` namespace.
-
+Using commands you've already used, take a look at the pods in the `minibroker` namespace.
 
 ## Discussion
 
