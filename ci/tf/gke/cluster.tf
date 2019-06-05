@@ -39,7 +39,7 @@ resource "google_container_cluster" "scf-cluster" {
 resource "google_container_node_pool" "primary_preemptible_nodes" {
   name       = "scf-nodes"
   cluster    = "${google_container_cluster.scf-cluster.name}"
-  node_count = 1
+  node_count = 2
 
   node_config {
     preemptible  = true
