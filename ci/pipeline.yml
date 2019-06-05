@@ -506,7 +506,7 @@ jobs:
 
           cf create-org students
 
-          for COUNT in {1..30}; do
+          for COUNT in {1..25}; do
             STUDENT=student${COUNT}
             EMAIL=${STUDENT}@engineerbetter.com
             PASSWORD=student-${COUNT}
