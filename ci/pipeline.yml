@@ -522,3 +522,29 @@ jobs:
               cf set-space-role "${EMAIL}" students "${STUDENT}" SpaceDeveloper
             fi
           done
+
+- name: cleanup-cf
+  plan:
+  - task: cleanup-cf
+    timeout: 10m
+    config:
+      image_resource: *pcf-ops
+      platform: linux
+      run:
+        path: bash
+        args:
+        - -exc
+        - |
+          cf login -a https://api.scf.engineerbetter.com -u admin -p changeme --skip-ssl-validation -o system
+
+          cf delete-org -f students
+
+          for COUNT in {1..25}; do
+            STUDENT=student${COUNT}
+            EMAIL=${STUDENT}@engineerbetter.com
+
+            cf delete-user -f "${EMAIL}"
+          done
+
+          cf delete-service-broker -f minibroker
+          cf delete-space -f -o system system
