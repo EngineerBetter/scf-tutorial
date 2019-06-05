@@ -1,4 +1,6 @@
-# Introduction
+# Code to Production in 3 Minutes on K8s
+
+## Introduction
 
 In this tutorial, we will:
 
@@ -11,6 +13,10 @@ In this tutorial, we will:
 ...and all **without writing any YAML!**
 
 What's more, we'll all be sharing _one_ Kubernetes cluster safely. This is known as multi-tenancy.
+
+### Ready to begin?
+
+When you're ready, click the **Next button** below.
 
 ## Getting Started
 
@@ -28,6 +34,16 @@ Set an environment variable to the value of _your actual student number_ (**not*
 export STUDENT_NUMBER=117
 ```
 
+### Checking Your Work
+
+Check that your environment variable is set correctly using the following command:
+
+```bash
+echo ${STUDENT_NUMBER}
+```
+
+and you should see your number printed on the next line.
+
 ## The `cf` CLI
 
 We're going to use Cloud Foundry to take our code and turn it into a running pods on Kubernetes. Cloud Foundry has a number of components that run in the Kubernetes cluster, and a **command-line interface**: the `cf` CLI.
@@ -38,12 +54,12 @@ Let's check that the tool is installed correctly.
 cf version
 ```
 
-#### Checking your work
+### Checking your work
 
 You should see something similar to:
 
 ```bash
-TODO
+cf version 6.44.1+c3b20bfbe.2019-05-08
 ```
 
 ### Logging into Cloud Foundry
