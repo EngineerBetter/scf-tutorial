@@ -49,10 +49,10 @@ resources:
     <<: &scf-tutorial-source
       uri: https://github.com/EngineerBetter/scf-tutorial.git
       branch: master
-    ignore_paths:
-    - README.md
-    - tutorial.md
-    - docker/Dockerfile
+    paths:
+    - ci
+    - k8s
+    - scf
 - name: scf-tutorial-dockerfile
   type: git
   source:
