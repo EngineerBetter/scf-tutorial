@@ -347,7 +347,7 @@ jobs:
         - |
           echo '((gcp_credentials_json))' > creds.json
           gcloud auth activate-service-account --key-file creds.json
-          gsutil iam ch allUsers:objectViewer gs://((project_id))
+          gsutil iam ch allUsers:objectViewer gs://eu.artifacts.((project_id)).appspot.com
 
 - name: deploy-scf
   serial: true
