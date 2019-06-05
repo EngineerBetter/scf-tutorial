@@ -48,7 +48,7 @@ cf version
 
 You should see something similar to:
 
-```bash
+```
 cf version 6.44.1+c3b20bfbe.2019-05-08
 ```
 
@@ -69,7 +69,7 @@ When prompted, enter:
 
 You should see something like this, but with _your_ student number:
 
-```bash
+```
 API endpoint:   https://api.scf.engineerbetter.com (API version: 2.134.0)
 User:           student117@engineerbetter.com
 Org:            students
@@ -121,7 +121,7 @@ Cloud Foundry does a _lot_ of work for you, including:
 
 When your app is successfully pushed, you should see a table describing your running application:
 
-```bash
+```
 name:                mongo-sample
 requested state:     started
 isolation segment:   placeholder
@@ -174,7 +174,7 @@ cf marketplace
 
 You should see a single service with a single plan available. It's almost as if someone set up this Cloud Foundry _just_ for today's tutorial!
 
-```bash
+```
 OK
 
 service   plans   description              broker
@@ -197,7 +197,7 @@ cf create-service mongodb 4-0-3 mymongo
 
 You should see the following:
 
-```bash
+```
 Creating service instance mymongo in org students / space student1 as student117@engineerbetter.com...
 OK
 ```
@@ -218,7 +218,7 @@ _Hint: you **don't need any optional arguments**._
 
 Run `cf services`, and you should `mongo-sample` appear in the `bound apps` section:
 
-```bash
+```
 Getting services in org students / space student117 as student117@engineerbetter.com...
 
 name      service   plan    bound apps     last operation     broker       upgrade available
@@ -265,7 +265,7 @@ curl -i -k https://${APP_URL}/items/ein
 
 You'll get back the data you posted in, along with the ID that MongoDB assigned it based on the URL used:
 
-```bash
+```
 HTTP/1.1 200 OK
 Content-Length: 21
 Content-Type: application/json; charset=utf-8
