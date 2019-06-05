@@ -497,8 +497,27 @@ jobs:
         args:
         - -exc
         - |
-          cf login -a https://api.scf.engineerbetter.com -u admin -p changeme --skip-ssl-validation
+          cf login -a https://api.scf.engineerbetter.com -u admin -p changeme --skip-ssl-validation -o system
           cf create-space -o system system
           cf target -o system -s system
-          cf create-service-broker minibroker user pass http://minibroker-minibroker.minibroker.svc.cluster.local
+          cf create-service-broker minibroker user pass http://minibroker-minibroker.minibroker.svc.cluster.local || true
           cf enable-service-access mongodb -p 4-0-3
+
+          cf create-org students
+
+          for COUNT in {1..30}; do
+            STUDENT=student${COUNT}
+            EMAIL=${STUDENT}@engineerbetter.com
+            PASSWORD=student-${COUNT}
+
+            if cf auth "${EMAIL}" "${PASSWORD}" > /dev/null; then
+              echo "${EMAIL}" worked
+            else
+              echo "${EMAIL}" failed, creating user and space
+
+              cf auth admin changeme
+              cf create-user "${EMAIL}" "${PASSWORD}"
+              cf create-space -o students "${STUDENT}"
+              cf set-space-role "${EMAIL}" students "${STUDENT}" SpaceDeveloper
+            fi
+          done
