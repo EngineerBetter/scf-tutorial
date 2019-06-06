@@ -191,9 +191,9 @@ jobs:
   serial: true
   plan:
   - get: scf-tutorial
-    passed: [teardown-route53]
+    passed: [deploy-gke]
   - get: gke-tf
-    passed: [teardown-route53]
+    passed: [deploy-gke]
   - put: gke-tf
     params:
       action: destroy
