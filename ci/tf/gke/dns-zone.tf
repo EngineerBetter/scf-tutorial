@@ -58,7 +58,7 @@ resource "google_dns_record_set" "router" {
 }
 
 resource "google_dns_record_set" "stratos" {
-  name = "*.${google_dns_managed_zone.scf.dns_name}"
+  name = "stratos.${google_dns_managed_zone.scf.dns_name}"
   type = "A"
   ttl  = 5
 
