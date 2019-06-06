@@ -57,14 +57,9 @@ cf version 6.44.1+c3b20bfbe.2019-05-08
 
 If you want to move ahead and explore the functionality offered by Cloud Foundry, or you get stuck, you can use the `cf` CLI's built-in documentation:
 
-```bash
-# Provides help on common commands
-cf help
-# Detailed documentation the push command
-cf push --help
-# Provides help on all the commands, and there are many!
-cf help -a
-```
+* `cf help` provides help on common commands
+* `cf <command> --help` gives detailed help on a command
+* `cf help -a` shows all the commands
 
 ## Logging into Cloud Foundry
 
