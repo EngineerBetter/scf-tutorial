@@ -159,7 +159,15 @@ start command:   node index.js
 
 Now, let's access our app.
 
-Copy the URL from the `routes` output and visit it in a browser.
+You can get a summary of all apps in the current space and the URLs with:
+
+```bash
+cf apps
+```
+
+Notice that even though many people have pushed apps, **you can only see your own**. This is an example of Cloud Foundry's multi-tenancy in action.
+
+Copy the URL from the `urls` output and visit it in a browser.
 
 ### Checking Your Work
 
