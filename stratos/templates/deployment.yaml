@@ -181,38 +181,38 @@ spec:
         - name: LOG_LEVEL
           value: {{.Values.console.backendLogLevel}}
         {{- end }}
-        {{- if or .Values.env.UAA_HOST .Values.env.DOMAIN }}  
-        - name: UAA_ENDPOINT 
-          value: {{ template "scfUaaEndpoint" . }}
-        - name: CONSOLE_CLIENT 
+        {{- if or .Values.env.UAA_HOST .Values.env.DOMAIN }}
+        - name: UAA_ENDPOINT
+          value: https://cf.uaa.scf.engineerbetter.com:2793
+        - name: CONSOLE_CLIENT
           value: cf
         - name: CONSOLE_CLIENT_SECRET
           value:
-        {{- if .Values.env.DOMAIN }}  
+        {{- if .Values.env.DOMAIN }}
         - name: AUTO_REG_CF_URL
           value: https://api.{{.Values.env.DOMAIN}}
         {{- end }}
-        - name: CONSOLE_ADMIN_SCOPE 
+        - name: CONSOLE_ADMIN_SCOPE
           value: cloud_controller.admin
-        - name: SKIP_SSL_VALIDATION 
+        - name: SKIP_SSL_VALIDATION
           value: "true"
-        {{- else if .Values.uaa.host }}  
-        - name: UAA_ENDPOINT 
+        {{- else if .Values.uaa.host }}
+        - name: UAA_ENDPOINT
           value: {{default "https://" .Values.uaa.protocol}}{{.Values.uaa.host}}:{{.Values.uaa.port}}
-        - name: CONSOLE_CLIENT 
+        - name: CONSOLE_CLIENT
           value: {{.Values.uaa.consoleClient}}
-        - name: CONSOLE_CLIENT_SECRET 
+        - name: CONSOLE_CLIENT_SECRET
           value: {{.Values.uaa.consoleClientSecret}}
-        - name: CONSOLE_ADMIN_SCOPE 
+        - name: CONSOLE_ADMIN_SCOPE
           value: {{.Values.uaa.consoleAdminIdentifier}}
-        - name: SKIP_SSL_VALIDATION 
+        - name: SKIP_SSL_VALIDATION
           value: {{default "true" .Values.uaa.skipSSLValidation | quote}}
         {{- end }}
         {{- if .Values.console.cookieDomain }}{{ if ne .Values.console.cookieDomain "-" }}
         - name: COOKIE_DOMAIN
           value: {{.Values.console.cookieDomain}}
         {{- end }}
-        {{- else if .Values.env.DOMAIN }}  
+        {{- else if .Values.env.DOMAIN }}
         - name: COOKIE_DOMAIN
           value: {{.Values.env.DOMAIN}}
         {{- end }}
