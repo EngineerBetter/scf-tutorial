@@ -1,10 +1,12 @@
 # scf-tutorial
 
-## For Students:
+## Students
 
 Before starting, make sure you're using a **new Incognito window**, and have **credentials provided by your instructor**.
 
 [![Open in Cloud Shell](https://gstatic.com/cloudssh/images/open-btn.png)](https://console.cloud.google.com/cloudshell/open?git_repo=https://github.com/EngineerBetter/scf-tutorial&tutorial=tutorial.md)
+
+---
 
 ## Development Notes
 
