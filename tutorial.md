@@ -7,7 +7,6 @@ In this tutorial, we will:
 * Deploy a 12 Factor App to Kubernetes in minutes
 * Create a MongoDB service instance from a curated catalogue of services
 * Connect the app to the service
-* Scale the app, and look at its logs
 * Take a look at what is running on Kubernetes to make this possible
 
 ...and all **without writing any YAML!**
