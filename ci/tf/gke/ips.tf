@@ -21,3 +21,11 @@ resource "google_compute_address" "router_ip" {
 output "router_ip" {
   value = "${google_compute_address.router_ip.address}"
 }
+
+resource "google_compute_address" "stratos_ip" {
+  name = "stratos"
+}
+
+output "stratos_ip" {
+  value = "${google_compute_address.stratos_ip.address}"
+}

@@ -105,6 +105,8 @@ resources:
     repos:
     - name: minibroker
       url: https://minibroker.blob.core.windows.net/charts
+    - name: stratos
+      url: https://cloudfoundry-incubator.github.io/stratos
 - name: kubernetes
   type: kubernetes
 
@@ -485,6 +487,42 @@ jobs:
         value: "false"
       - key: defaultNamespace
         value: minibroker
+      wait_until_ready: 900
+      kubeconfig_path: kubeconfig/kube.config
+
+- name: deploy-stratos
+  plan:
+  - get: scf-tutorial
+    passed: [deploy-scf]
+    trigger: true
+  - get: kubeconfig
+    passed: [deploy-scf]
+    trigger: true
+  - get: gke-tf
+    passed: [deploy-gke]
+  - task: extract-stratos-ip
+    file: scf-tutorial/ci/tasks/tf-metadata-to-file.yml
+    input_mapping: { terraform: gke-tf }
+    output_mapping: { tf-metadata-to-file: stratos_ip }
+    params:
+      METADATA_KEY: stratos_ip
+      OUTPUT_FILE: stratos_ip
+  - put: helm
+    params:
+      chart: stratos-ui/console
+      release: stratos
+      namespace: stratos
+      override_values:
+      - key: console.service.type
+        value: LoadBalancer
+      - key: console.service.loadBalancerIP
+        path: stratos_ip/stratos_ip
+      - key: env.DOMAIN
+        value: scf.engineerbetter.com
+      - key: env.UAA_HOST
+        value: uaa.scf.engineerbetter.com
+      - key: env.UAA_PORT
+        value: 2793
       wait_until_ready: 900
       kubeconfig_path: kubeconfig/kube.config
 

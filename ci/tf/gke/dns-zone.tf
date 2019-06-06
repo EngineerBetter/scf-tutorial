@@ -56,3 +56,13 @@ resource "google_dns_record_set" "router" {
 
   rrdatas = ["${google_compute_address.router_ip.address}"]
 }
+
+resource "google_dns_record_set" "stratos" {
+  name = "*.${google_dns_managed_zone.scf.dns_name}"
+  type = "A"
+  ttl  = 5
+
+  managed_zone = "${google_dns_managed_zone.scf.name}"
+
+  rrdatas = ["${google_compute_address.stratos_ip.address}"]
+}
