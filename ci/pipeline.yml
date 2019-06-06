@@ -437,6 +437,8 @@ jobs:
         path: ssh_ip/ssh_ip
       - key: services.router_load_balancer_ip
         path: router_ip/router_ip
+      - key: config.HA
+        value: "true"
       - key: sizing.api_group.count
         value: 2
       - key: sizing.cc_clock.count
