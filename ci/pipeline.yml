@@ -382,6 +382,12 @@ jobs:
         path: uaa_ip/uaa_ip
       - key: env.DOMAIN
         value: scf.engineerbetter.com
+      - key: config.HA
+        value: "true"
+      - key: sizing.uaa.count
+        value: 2
+      - key: sizing.mysql.count
+        value: 3
       wait_until_ready: 480
       kubeconfig_path: kubeconfig/kube.config
   - task: write-ca-cert
