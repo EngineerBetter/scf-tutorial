@@ -488,7 +488,7 @@ jobs:
     passed: [deploy-minibroker, deploy-scf]
     trigger: true
   - task: setup-cf
-    timeout: 2m
+    timeout: 10m
     config:
       image_resource: *pcf-ops
       platform: linux
