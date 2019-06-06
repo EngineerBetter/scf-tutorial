@@ -105,7 +105,7 @@ resources:
     repos:
     - name: minibroker
       url: https://minibroker.blob.core.windows.net/charts
-    - name: stratos
+    - name: stratos-ui
       url: https://cloudfoundry-incubator.github.io/stratos
 - name: kubernetes
   type: kubernetes
