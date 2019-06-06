@@ -105,8 +105,6 @@ resources:
     repos:
     - name: minibroker
       url: https://minibroker.blob.core.windows.net/charts
-    - name: stratos-ui
-      url: https://cloudfoundry-incubator.github.io/stratos
 - name: kubernetes
   type: kubernetes
 
@@ -509,10 +507,12 @@ jobs:
       OUTPUT_FILE: stratos_ip
   - put: helm
     params:
-      chart: stratos-ui/console
+      chart: scf-tutorial/stratos/
       release: stratos
       namespace: stratos
       override_values:
+      - key: kube.storage_class.persistent
+        value: standard
       - key: console.service.type
         value: LoadBalancer
       - key: console.service.loadBalancerIP
