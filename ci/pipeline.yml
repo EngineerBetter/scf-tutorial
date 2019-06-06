@@ -455,6 +455,34 @@ jobs:
         path: ssh_ip/ssh_ip
       - key: services.router_load_balancer_ip
         path: router_ip/router_ip
+      - key: sizing.api_group.count
+        value: 2
+      - key: sizing.cc_clock.count
+        value: 2
+      - key: sizing.cc_uploader.count
+        value: 2
+      - key: sizing.cc_worker.count
+        value: 2
+      - key: sizing.cf_usb.count
+        value: 2
+      - key: sizing.doppler.count
+        value: 2
+      - key: sizing.log_api.count
+        value: 2
+      - key: sizing.mysql.count
+        value: 2
+      - key: sizing.nats.count
+        value: 2
+      - key: sizing.nfs_broker.count
+        value: 2
+      - key: sizing.router.count
+        value: 2
+      - key: sizing.routing_api.count
+        value: 2
+      - key: sizing.syslog_scheduler.count
+        value: 2
+      - key: sizing.tcp_router.count
+        value: 2
       wait_until_ready: 900
       kubeconfig_path: kubeconfig/kube.config
 
