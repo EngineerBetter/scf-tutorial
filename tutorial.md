@@ -403,3 +403,13 @@ The [Open Service Broker API](https://www.openservicebrokerapi.org/) abstraction
 Again, the app developer doesn't need to know or care about this.
 
 **Plans** allow services to be offered in different sizes, or with different SLAs. Perhaps the `dev` plan runs in a container, and the `prod` plan has guaranteed uptime and runs on dedicated hardware.
+
+## Further Reading
+
+* [Cloud Foundry official site](https://www.cloudfoundry.org/)
+* [SCF GitHub repo](https://github.com/SUSE/scf)
+* [Stratos UI GitHub repo](https://github.com/cloudfoundry-incubator/stratos)
+* [SUSE Cloud Application Platform](https://www.suse.com/products/cloud-application-platform/)
+* Free online Cloud Foundry ["Zero To Hero" training](http://zero-to-hero.engineerbetter.com/)
+* [Cloud Native Buildpacks](https://buildpacks.io/)
+* [Why continuous delivery on a self-service platform is better for your brain](https://www.youtube.com/watch?v=k9duArRuSjQ)
