@@ -53,6 +53,7 @@ resources:
     - ci
     - k8s
     - scf
+    - stratos
 - name: scf-tutorial-dockerfile
   type: git
   source:
