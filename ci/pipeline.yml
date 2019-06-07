@@ -382,6 +382,10 @@ jobs:
         path: uaa_ip/uaa_ip
       - key: env.DOMAIN
         value: scf.engineerbetter.com
+      - key: kube.limits.nproc.hard
+        value: 8192
+      - key: kube.limits.nproc.soft
+        value: 8192
       wait_until_ready: 480
       kubeconfig_path: kubeconfig/kube.config
   - task: write-ca-cert
@@ -437,6 +441,10 @@ jobs:
         path: ssh_ip/ssh_ip
       - key: services.router_load_balancer_ip
         path: router_ip/router_ip
+      - key: kube.limits.nproc.hard
+        value: 8192
+      - key: kube.limits.nproc.soft
+        value: 8192
       wait_until_ready: 900
       kubeconfig_path: kubeconfig/kube.config
 
