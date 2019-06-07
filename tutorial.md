@@ -25,6 +25,12 @@ This is Google Cloud Shell. Google Cloud has provisioned a free VM that you can 
 
 We've installed the tools and configuration you need into the image of the VM.
 
+Before we start, let's make sure that our Git repo is initialised:
+
+```bash
+git submodule update --init --recursive
+```
+
 ### Student Numbers
 
 You should all have been assigned a student number. You'll need this at various points throughout the course.
