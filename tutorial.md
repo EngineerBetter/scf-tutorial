@@ -413,9 +413,10 @@ Again, the app developer doesn't need to know or care about this.
 ## Further Reading
 
 * [Cloud Foundry official site](https://www.cloudfoundry.org/)
+* [Try Cloud Foundry](https://trycloudfoundry.com/posts/try/index.html)
 * [SCF GitHub repo](https://github.com/SUSE/scf)
 * [Stratos UI GitHub repo](https://github.com/cloudfoundry-incubator/stratos)
 * [SUSE Cloud Application Platform](https://www.suse.com/products/cloud-application-platform/)
-* Free online Cloud Foundry ["Zero To Hero" training](http://zero-to-hero.engineerbetter.com/)
+* Free online Cloud Foundry ["Zero To Hero" training](http://zero-to-hero.engineerbetter.com/), including instructions on various **free trial accounts**
 * [Cloud Native Buildpacks](https://buildpacks.io/)
 * [Why continuous delivery on a self-service platform is better for your brain](https://www.youtube.com/watch?v=k9duArRuSjQ)
