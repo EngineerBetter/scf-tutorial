@@ -8,7 +8,7 @@ data "aws_route53_zone" "parent_zone" {
 
 resource "aws_route53_record" "ns" {
   zone_id = "${data.aws_route53_zone.parent_zone.zone_id}"
-  name    = "scf.engineerbetter.com"
+  name    = "cap.engineerbetter.com"
   type    = "NS"
   ttl     = "300"
   records = "${var.scf_name_servers}"

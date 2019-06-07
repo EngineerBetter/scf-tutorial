@@ -48,7 +48,7 @@ resources:
   source:
     <<: &scf-tutorial-source
       uri: https://github.com/EngineerBetter/scf-tutorial.git
-      branch: master
+      branch: ((branch))
     paths:
     - ci
     - k8s
@@ -381,7 +381,7 @@ jobs:
       - key: services.uaa_load_balancer_ip
         path: uaa_ip/uaa_ip
       - key: env.DOMAIN
-        value: scf.engineerbetter.com
+        value: cap.engineerbetter.com
       wait_until_ready: 480
       kubeconfig_path: kubeconfig/kube.config
   - task: write-ca-cert
@@ -426,9 +426,9 @@ jobs:
       - key: secrets.UAA_CA_CERT
         path: ca_cert/ca_cert
       - key: env.DOMAIN
-        value: scf.engineerbetter.com
+        value: cap.engineerbetter.com
       - key: env.UAA_HOST
-        value: uaa.scf.engineerbetter.com
+        value: uaa.cap.engineerbetter.com
       - key: env.UAA_PORT
         value: 2793
       - key: services.loadbalanced
@@ -491,9 +491,9 @@ jobs:
       - key: console.service.loadBalancerIP
         path: stratos_ip/stratos_ip
       - key: env.DOMAIN
-        value: scf.engineerbetter.com
+        value: cap.engineerbetter.com
       - key: env.UAA_HOST
-        value: uaa.scf.engineerbetter.com
+        value: uaa.cap.engineerbetter.com
       - key: env.UAA_PORT
         value: 2793
       wait_until_ready: 900
@@ -517,7 +517,7 @@ jobs:
         args:
         - -exc
         - |
-          cf login -a https://api.scf.engineerbetter.com -u admin -p changeme --skip-ssl-validation -o system
+          cf login -a https://api.cap.engineerbetter.com -u admin -p changeme --skip-ssl-validation -o system
           cf update-quota default -m 26G -i 2G
           cf create-space -o system system
           cf target -o system -s system
@@ -555,7 +555,7 @@ jobs:
         args:
         - -exc
         - |
-          cf login -a https://api.scf.engineerbetter.com -u admin -p changeme --skip-ssl-validation -o system
+          cf login -a https://api.cap.engineerbetter.com -u admin -p changeme --skip-ssl-validation -o system
 
           cf delete-org -f students
 

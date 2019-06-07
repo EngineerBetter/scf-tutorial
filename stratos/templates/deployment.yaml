@@ -85,7 +85,7 @@ spec:
           value: {{.Values.ftpProxy}}
         {{- end }}
         - name: SOCKS_PROXY
-        {{- if .Values.socksProxy }}  
+        {{- if .Values.socksProxy }}
           value: {{.Values.socksProxy}}
         {{- end }}
         volumeMounts:
@@ -140,10 +140,10 @@ spec:
           value: {{ .Values.console.sessionStoreSecret | quote }}
           {{- else }}
           value: {{ randAlphaNum 64 | quote }}
-          {{- end }}          
+          {{- end }}
         {{- if .Values.consoleCert }}
         - name: CONSOLE_CERT
-          value: | 
+          value: |
 {{ .Values.consoleCert | indent 12 }}
         {{- end }}
         {{- if .Values.consoleCertKey }}
@@ -152,9 +152,9 @@ spec:
 {{ .Values.consoleCertKey | indent 12 }}
         {{- end }}
         - name: CONSOLE_PROXY_CERT_PATH
-          value: "/{{ .Release.Name }}-encryption-key-volume/console.crt" 
+          value: "/{{ .Release.Name }}-encryption-key-volume/console.crt"
         - name: CONSOLE_PROXY_CERT_KEY_PATH
-          value: "/{{ .Release.Name }}-encryption-key-volume/console.key" 
+          value: "/{{ .Release.Name }}-encryption-key-volume/console.key"
         - name: NO_SHARED_MODE
           value: "true"
         - name: HTTP_PROXY
@@ -183,7 +183,7 @@ spec:
         {{- end }}
         {{- if or .Values.env.UAA_HOST .Values.env.DOMAIN }}
         - name: UAA_ENDPOINT
-          value: https://cf.uaa.scf.engineerbetter.com:2793
+          value: https://cf.uaa.cap.engineerbetter.com:2793
         - name: CONSOLE_CLIENT
           value: cf
         - name: CONSOLE_CLIENT_SECRET

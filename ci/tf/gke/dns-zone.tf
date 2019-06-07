@@ -5,7 +5,7 @@ resource "google_project_service" "dns" {
 
 resource "google_dns_managed_zone" "scf" {
   name        = "scf"
-  dns_name    = "scf.engineerbetter.com."
+  dns_name    = "cap.engineerbetter.com."
   description = "DNS zone for SCF tutorial"
 
   depends_on = [

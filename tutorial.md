@@ -66,7 +66,7 @@ If you want to move ahead and explore the functionality offered by Cloud Foundry
 Use the following command to log into the Cloud Foundry running on our Kubernetes cluster:
 
 ```bash
-cf login -a https://api.scf.engineerbetter.com --skip-ssl-validation
+cf login -a https://api.cap.engineerbetter.com --skip-ssl-validation
 ```
 
 When prompted, enter:
@@ -79,7 +79,7 @@ When prompted, enter:
 You should see something like this, but with _your_ student number:
 
 ```
-API endpoint:   https://api.scf.engineerbetter.com (API version: 2.134.0)
+API endpoint:   https://api.cap.engineerbetter.com (API version: 2.134.0)
 User:           student117@engineerbetter.com
 Org:            students
 Space:          student117
@@ -134,7 +134,7 @@ When your app is successfully pushed, you should see a table describing your run
 name:                mongo-sample
 requested state:     started
 isolation segment:   placeholder
-routes:              mongo-sample-quick-alligator.scf.engineerbetter.com
+routes:              mongo-sample-quick-alligator.cap.engineerbetter.com
 last uploaded:       Wed 05 Jun 23:15:02 CEST 2019
 stack:               sle15
 buildpacks:          nodejs
